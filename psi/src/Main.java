@@ -12,8 +12,8 @@ public class Main {
         } catch (Exception ignored) {}
 
         SwingUtilities.invokeLater(() -> {
-            MainView okno = new MainView();
-            okno.setVisible(true);
+            MainView window = new MainView();
+            window.setVisible(true);
         });
     }
 }

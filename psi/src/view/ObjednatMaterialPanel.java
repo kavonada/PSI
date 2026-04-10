@@ -2,16 +2,14 @@ package view;
 
 import controller.InventarController;
 import controller.InventarController.VysledokObjednavky;
-import model.DataStore;
-import model.KosikPolozka;
-import model.Material;
-import model.ObjednavkaMaterialu;
+import model.use_case_3.KosikPolozka;
+import model.use_case_3.Material;
+import model.use_case_3.Dodavatel;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.List;
 
 /**
  * View pre UC03 – Objednanie materiálu.
@@ -30,8 +28,6 @@ public class ObjednatMaterialPanel extends JPanel {
     private JSpinner mnozstvoSpinner;
     private JComboBox<String> dodavatelCombo;
     private JLabel cenaLabel;
-    private JButton objednatBtn;
-    private JButton addToCartBtn;
 
     // --- Košík ---
     private DefaultTableModel cartTableModel;
@@ -144,7 +140,7 @@ public class ObjednatMaterialPanel extends JPanel {
         // Info limit
         lc.gridy = row; fc.gridy = row++;
         lc.gridwidth = 2;
-        JLabel limitInfo = new JLabel("⚠ Objednávky nad " + (int) controller.getLimitSchvalenia()
+        JLabel limitInfo = new JLabel("⚠ Objednávky nad " + (int) controller.getLimitOrder()
                 + " EUR vyžadujú schválenie manažéra.");
         limitInfo.setFont(new Font("SansSerif", Font.ITALIC, 11));
         limitInfo.setForeground(new Color(150, 80, 0));
@@ -153,34 +149,24 @@ public class ObjednatMaterialPanel extends JPanel {
         // Tlacidlo pridat do kosika
         lc.gridy = row; fc.gridy = row++;
         lc.gridwidth = 2;
-        addToCartBtn = new JButton("Pridať do košíka");
-        addToCartBtn.setFont(new Font("SansSerif", Font.BOLD, 13));
-        addToCartBtn.setBackground(new Color(40, 100, 180));
-        addToCartBtn.setForeground(Color.WHITE);
-        addToCartBtn.setFocusPainted(false);
-        addToCartBtn.setOpaque(true);
-        addToCartBtn.setBorderPainted(false);
-        addToCartBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        addToCartBtn.addActionListener(e -> spracujPridanieProduktu());
+        JButton addToCartBtn = createButton("Pridať do košíka", this::spracujPridanieProduktu);
         p.add(addToCartBtn, lc);
 
         // Dodavatel
         lc.gridy = row; fc.gridy = row++;
         p.add(new JLabel("Dodávateľ:"), lc);
-        dodavatelCombo = new JComboBox<>(InventarController.DODAVATELIA);
+        dodavatelCombo = new JComboBox<>(
+                controller.getSuppliers()
+                        .stream()
+                        .map(Dodavatel::getName)
+                        .toArray(String[]::new)
+        );
         p.add(dodavatelCombo, fc);
 
         // Tlačidlo objednat
-        lc.gridy = row; lc.gridwidth = 2;
-        objednatBtn = new JButton("✔ Objednať materiál");
-        objednatBtn.setFont(new Font("SansSerif", Font.BOLD, 13));
-        objednatBtn.setBackground(new Color(40, 100, 180));
-        objednatBtn.setForeground(Color.WHITE);
-        objednatBtn.setFocusPainted(false);
-        objednatBtn.setOpaque(true);
-        objednatBtn.setBorderPainted(false);
-        objednatBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        objednatBtn.addActionListener(e -> spracujObjednavku());
+        lc.gridy = row;
+        lc.gridwidth = 2;
+        JButton objednatBtn = createButton("✔ Objednať materiál", this::spracujObjednavku);
         p.add(objednatBtn, lc);
 
         return p;
@@ -227,14 +213,14 @@ public class ObjednatMaterialPanel extends JPanel {
     public void refreshSklad() {
         // Tabuľka skladu
         skladTableModel.setRowCount(0);
-        for (Material m : controller.getMaterialy()) {
+        for (Material m : controller.getMaterials()) {
             skladTableModel.addRow(new Object[]{m.getNazov(), m.getMnozstvo(), m.getStav()});
         }
 
         // ComboBox materiálov
         String selected = (String) materialCombo.getSelectedItem();
         materialCombo.removeAllItems();
-        for (Material m : controller.getMaterialy()) {
+        for (Material m : controller.getMaterials()) {
             materialCombo.addItem(m.getNazov() + "  (" + m.getMnozstvo() + " ks)");
         }
         if (selected != null) materialCombo.setSelectedItem(selected);
@@ -247,13 +233,13 @@ public class ObjednatMaterialPanel extends JPanel {
 
         double totalPrice = 0;
 
-        for (KosikPolozka o : controller.getKosik()) {
+        for (KosikPolozka o : controller.getCart()) {
             cartTableModel.addRow(new Object[]{
                     o.getMaterial().getNazov(),
-                    o.getMnozstvo(),
-                    String.format("%.2f", o.getCena())
+                    o.getQuantity(),
+                    String.format("%.2f", o.getPrice())
             });
-            totalPrice += o.getCena();
+            totalPrice += o.getPrice();
         }
         totalCartPriceLabel.setText(String.format("Celkom: %.2f EUR", totalPrice));
     }
@@ -264,7 +250,7 @@ public class ObjednatMaterialPanel extends JPanel {
         double cena = 0;
 
         if (materialIndex >= 0) {
-            Material vybrany = controller.getMaterialy().get(materialIndex);
+            Material vybrany = controller.getMaterials().get(materialIndex);
             cena  = controller.vypocitajCenu(mnozstvo, vybrany);
         }
 
@@ -340,5 +326,21 @@ public class ObjednatMaterialPanel extends JPanel {
                 new Font("SansSerif", Font.BOLD, 12),
                 new Color(40, 70, 120)),
             new EmptyBorder(6, 8, 8, 8));
+    }
+
+    private JButton createButton(String text, Runnable action) {
+        JButton btn = new JButton(text);
+
+        btn.setFont(new Font("SansSerif", Font.BOLD, 13));
+        btn.setBackground(new Color(40, 100, 180));
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
+        btn.setOpaque(true);
+        btn.setBorderPainted(false);
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        btn.addActionListener(e -> action.run());
+
+        return btn;
     }
 }

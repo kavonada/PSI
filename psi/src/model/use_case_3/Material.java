@@ -1,4 +1,4 @@
-package model;
+package model.use_case_3;
 
 public class Material {
 
