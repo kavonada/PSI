@@ -15,7 +15,6 @@ public class Material {
         this.dodavatel = "Neznámy";
         this.cena = cena;
         this.limit = limit;
-
     }
 
     public String getNazov() { return nazov; }

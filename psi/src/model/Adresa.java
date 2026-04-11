@@ -17,32 +17,16 @@ public class Adresa {
         return ulica;
     }
 
-    public void setUlica(String ulica) {
-        this.ulica = ulica;
-    }
-
     public String getCisloDomu() {
         return cisloDomu;
-    }
-
-    public void setCisloDomu(String cisloDomu) {
-        this.cisloDomu = cisloDomu;
     }
 
     public String getMesto() {
         return mesto;
     }
 
-    public void setMesto(String mesto) {
-        this.mesto = mesto;
-    }
-
     public String getPsc() {
         return psc;
-    }
-
-    public void setPsc(String psc) {
-        this.psc = psc;
     }
 
     @Override

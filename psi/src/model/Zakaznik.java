@@ -12,6 +12,17 @@ public class Zakaznik {
         this.telefon = telefon;
     }
 
+    public String getMeno() {
+        return meno;
+    }
+
+    public String getTelefon() {
+        return telefon;
+    }
+
+    public String getEmail() {
+        return email;
+    }
 
     @Override
     public String toString() {

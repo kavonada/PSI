@@ -44,15 +44,8 @@ public class ZakazkaController {
         Zakaznik zakaznik = new Zakaznik(menoZakaznika, email, telefon);
         Adresa adresa = new Adresa(ulica, cisloDomu, mesto, psc);
 
-        Zakazka zakazka = new Zakazka(
-                nazov,
-                popis,
-                zakaznik,
-                adresa,
-                cena,
-                terminDorucenia,
-                materialy
-        );
+        Zakazka zakazka = new Zakazka(nazov, popis, zakaznik, adresa,
+                cena, terminDorucenia, materialy);
 
         DataStore.pridajZakazku(zakazka);
         return zakazka;
