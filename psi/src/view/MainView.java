@@ -1,6 +1,7 @@
 package view;
 
 import controller.InventarController;
+import controller.RozvozController;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -13,29 +14,33 @@ import java.awt.*;
 public class MainView extends JFrame {
 
     // Card mená – každý panel má unikátny kľúč
-    public static final String CARD_UVOD       = "uvod";
-    public static final String CARD_UC01       = "uc01";
-    public static final String CARD_UC02       = "uc02";
-    public static final String CARD_UC03       = "uc03";
-    public static final String CARD_UC04       = "uc04";
-    public static final String CARD_ZAKAZKY    = "zakazky";
-    public static final String CARD_MANAZER    = "manazer";
+    public static final String CARD_UVOD    = "uvod";
+    public static final String CARD_UC01    = "uc01";
+    public static final String CARD_UC02    = "uc02";
+    public static final String CARD_UC03    = "uc03";
+    public static final String CARD_UC04    = "uc04";
+    public static final String CARD_ZAKAZKY = "zakazky";
+    public static final String CARD_MANAZER = "manazer";
 
-    private final CardLayout  cardLayout  = new CardLayout();
-    private final JPanel      contentPane = new JPanel(cardLayout);
+    private final CardLayout cardLayout  = new CardLayout();
+    private final JPanel     contentPane = new JPanel(cardLayout);
 
     private final ObjednatMaterialPanel objednatPanel;
+    private final RozvozPanel rozvozPanel;
 
     public MainView() {
         setTitle("Výrobný systém PSISKO");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(1050, 680);
-        setMinimumSize(new Dimension(800, 500));
+        setSize(1100, 700);
+        setMinimumSize(new Dimension(850, 540));
         setLocationRelativeTo(null);
 
         // --- Controller pre UC03 ---
         InventarController inventarCtrl = new InventarController();
         objednatPanel = new ObjednatMaterialPanel(inventarCtrl);
+
+        RozvozController rozvozCtrl   = new RozvozController();
+        rozvozPanel   = new RozvozPanel(rozvozCtrl);
 
         // Zostavenie UI
         JPanel root = new JPanel(new BorderLayout());
@@ -63,29 +68,30 @@ public class MainView extends JFrame {
         side.add(buildNavBtn("🏠  Úvod",                CARD_UVOD));
         side.add(Box.createVerticalStrut(4));
 
-        JLabel sep = new JLabel("  USE CASES");
-        sep.setFont(new Font("SansSerif", Font.BOLD, 10));
-        sep.setForeground(new Color(120, 150, 200));
-        sep.setBorder(new EmptyBorder(8, 14, 4, 0));
+        JLabel sep = sectionLabel("  USE CASES");
         side.add(sep);
 
-        side.add(buildNavBtn("1  Zákazky (UC01)",        CARD_UC01));
-        side.add(buildNavBtn("2  Výroba (UC02)",          CARD_UC02));
-        side.add(buildNavBtn("3  Inventár",        CARD_UC03));
-        side.add(buildNavBtn("4  Rozvoz (UC04)",          CARD_UC04));
+        side.add(buildNavBtn("1  Zákazky (UC01)",    CARD_UC01));
+        side.add(buildNavBtn("2  Výroba (UC02)",      CARD_UC02));
+        side.add(buildNavBtn("3  Inventár (UC03)",    CARD_UC03));
+        side.add(buildNavBtn("4  Rozvoz (UC04)",      CARD_UC04));
 
         side.add(Box.createVerticalStrut(4));
-        JLabel sep2 = new JLabel("  OSTATNÉ");
-        sep2.setFont(sep.getFont());
-        sep2.setForeground(sep.getForeground());
-        sep2.setBorder(sep.getBorder());
-        side.add(sep2);
+        side.add(sectionLabel("  OSTATNÉ"));
 
-        side.add(buildNavBtn("📋  Zoznam zákaziek",      CARD_ZAKAZKY));
-        side.add(buildNavBtn("🔐  Manažér",              CARD_MANAZER));
+        side.add(buildNavBtn("📋  Zoznam zákaziek",  CARD_ZAKAZKY));
+        side.add(buildNavBtn("🔐  Manažér",          CARD_MANAZER));
 
         side.add(Box.createVerticalGlue());
         return side;
+    }
+
+    private JLabel sectionLabel(String text) {
+        JLabel lbl = new JLabel(text);
+        lbl.setFont(new Font("SansSerif", Font.BOLD, 10));
+        lbl.setForeground(new Color(120, 150, 200));
+        lbl.setBorder(new EmptyBorder(8, 14, 4, 0));
+        return lbl;
     }
 
     private JButton buildNavBtn(String text, String card) {
@@ -101,18 +107,14 @@ public class MainView extends JFrame {
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         btn.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                btn.setBackground(new Color(50, 80, 130));
-            }
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                btn.setBackground(new Color(28, 50, 90));
-            }
+            public void mouseEntered(java.awt.event.MouseEvent e) { btn.setBackground(new Color(50, 80, 130)); }
+            public void mouseExited (java.awt.event.MouseEvent e) { btn.setBackground(new Color(28, 50, 90));  }
         });
 
         btn.addActionListener(e -> {
             cardLayout.show(contentPane, card);
-            // Pri prepnutí na UC03 obnov dáta
             if (CARD_UC03.equals(card)) objednatPanel.refreshSklad();
+            if (CARD_UC04.equals(card)) rozvozPanel.refreshAll();
         });
 
         return btn;
@@ -125,13 +127,13 @@ public class MainView extends JFrame {
         uvLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
         uvod.add(uvLabel);
 
-        contentPane.add(uvod, CARD_UVOD);
-        contentPane.add(new PlaceholderPanel("UC01 – Prijímanie zákaziek",  "Vytvorenie a správa zákaziek"),    CARD_UC01);
-        contentPane.add(new PlaceholderPanel("UC02 – Plánovanie výroby",    "Plánovanie výrobných úloh"),        CARD_UC02);
-        contentPane.add(objednatPanel, CARD_UC03);
-        contentPane.add(new PlaceholderPanel("UC04 – Plánovanie rozvozu",   "Plánuj a spravuj rozvozy"),         CARD_UC04);
-        contentPane.add(new PlaceholderPanel("Zoznam zákaziek",             "Prehľad všetkých zákaziek"),        CARD_ZAKAZKY);
-        contentPane.add(new PlaceholderPanel("Manažér",                     "Schvaľovanie objednávok a rozvozov"), CARD_MANAZER);
+        contentPane.add(uvod,                                                                          CARD_UVOD);
+        contentPane.add(new PlaceholderPanel("UC01 – Prijímanie zákaziek", "Vytvorenie a správa zákaziek"), CARD_UC01);
+        contentPane.add(new PlaceholderPanel("UC02 – Plánovanie výroby",   "Plánovanie výrobných úloh"),     CARD_UC02);
+        contentPane.add(objednatPanel,                                                                 CARD_UC03);
+        contentPane.add(rozvozPanel,                                                                   CARD_UC04);
+        contentPane.add(new PlaceholderPanel("Zoznam zákaziek",            "Prehľad všetkých zákaziek"),     CARD_ZAKAZKY);
+        contentPane.add(new PlaceholderPanel("Manažér",                    "Schvaľovanie objednávok"),       CARD_MANAZER);
 
         cardLayout.show(contentPane, CARD_UVOD);
         return contentPane;
