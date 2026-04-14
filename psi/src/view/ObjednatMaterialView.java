@@ -15,7 +15,7 @@ import java.awt.*;
  * View pre UC03 – Objednanie materiálu.
  * Zobrazuje sklad, formulár objednávky a históriu objednávok.
  */
-public class ObjednatMaterialPanel extends JPanel {
+public class ObjednatMaterialView extends JPanel {
 
     private final InventarController controller;
 
@@ -36,7 +36,7 @@ public class ObjednatMaterialPanel extends JPanel {
     // --- Status ---
     private JLabel statusLabel;
 
-    public ObjednatMaterialPanel(InventarController controller) {
+    public ObjednatMaterialView(InventarController controller) {
         this.controller = controller;
         setLayout(new BorderLayout(10, 10));
         setBorder(new EmptyBorder(15, 15, 15, 15));
