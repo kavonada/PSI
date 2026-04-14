@@ -5,12 +5,14 @@ import model.use_case_3.Material;
 /* TOTO JE PRE UC02 */
 public class PolozkaMaterialu {
 
-    private Material material;
-    private int pozadovaneMnozstvo;
+    private final Material material;
+    private final int pozadovaneMnozstvo;
+    private boolean dostatok;
 
     public PolozkaMaterialu(Material material, int pozadovaneMnozstvo) {
         this.material = material;
         this.pozadovaneMnozstvo = pozadovaneMnozstvo;
+        this.dostatok = material.getMnozstvo() >= pozadovaneMnozstvo;
     }
 
     public Material getMaterial() {
@@ -19,5 +21,13 @@ public class PolozkaMaterialu {
 
     public int getPozadovaneMnozstvo() {
         return pozadovaneMnozstvo;
+    }
+
+    public boolean jeDostatok() {
+        return dostatok;
+    }
+
+    public void skontrolujDostatok() {
+        this.dostatok = material.getMnozstvo() >= pozadovaneMnozstvo;
     }
 }

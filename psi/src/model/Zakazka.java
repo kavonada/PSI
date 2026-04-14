@@ -1,15 +1,17 @@
 package model;
 
+import model.use_case_2.VyrobnaUloha;
 import model.use_case_3.Material;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Zakazka {
 
     private static int counter = 1;
 
-    private int id;
+    private final int id;
     private String nazov;
     private String popis;
 
@@ -21,12 +23,14 @@ public class Zakazka {
 
     private List<Material> materialy;
     private List<PolozkaMaterialu> polozkyMaterialu;
+    private List<VyrobnaUloha> vyrobneUlohy;
 
     private StavZakazky stav;
 
     public enum StavZakazky {
         VYTVORENA,
-        VO_VYROBE,
+        NAPLANOVANA,
+        CIASTOCNE_NAPLANOVANA,
         DOKONCENA,
         ZRUSENA
     }
@@ -45,6 +49,8 @@ public class Zakazka {
         this.terminDorucenia = terminDorucenia;
         this.materialy = materialy;
         this.stav = StavZakazky.VYTVORENA;
+        this.polozkyMaterialu = new ArrayList<>();
+        this.vyrobneUlohy = new ArrayList<>();
     }
 
 
@@ -131,6 +137,14 @@ public class Zakazka {
     public void setStav(StavZakazky stav) {
         this.stav = stav;
     }
+
+    public String getDisplayName() {
+        return "#" + id + " - " + nazov;
+    }
+
+    public List<VyrobnaUloha> getVyrobneUlohy() { return vyrobneUlohy; }
+
+    public void setVyrobneUlohy(List<VyrobnaUloha> vyrobneUlohy) { this.vyrobneUlohy = vyrobneUlohy; }
 
     @Override
     public String toString() {

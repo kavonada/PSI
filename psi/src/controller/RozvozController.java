@@ -14,7 +14,7 @@ public class RozvozController {
 
     /** Stavy zákaziek, ktoré sú považované za dostupné na rozvoz. */
     private static final List<String> DOSTUPNE_STAVY = List.of(
-            "VYTVORENA", "VO_VYROBE", "DOKONCENA"
+            "VYTVORENA", "NAPLANOVANA", "CIASTOCNE_NAPLANOVANA", "DOKONCENA"
     );
 
     // ── Dotazy na dáta ────────────────────────────────────────────────────────
@@ -82,7 +82,7 @@ public class RozvozController {
             if (najdena == null)
                 return VysledokRozvozu.chyba("Zákazka ID " + id + " nie je dostupná.");
             rozvoz.pridajZakazku(najdena);
-            najdena.setStav(Zakazka.StavZakazky.valueOf("VO_VYROBE")); // označíme ako priradenú
+            najdena.setStav(Zakazka.StavZakazky.NAPLANOVANA); // označíme ako priradenú
         }
 
         rozvoz.setStav("Čaká na schválenie");

@@ -27,6 +27,7 @@ public class MainView extends JFrame {
 
     private final ObjednatMaterialPanel objednatPanel;
     private final RozvozPanel rozvozPanel;
+    private final VyrobaPanel vyrobaPanel;
 
     public MainView() {
         setTitle("Výrobný systém PSISKO");
@@ -38,6 +39,7 @@ public class MainView extends JFrame {
         // --- Controller pre UC03 ---
         InventarController inventarCtrl = new InventarController();
         objednatPanel = new ObjednatMaterialPanel(inventarCtrl);
+        vyrobaPanel = new VyrobaPanel();
 
         RozvozController rozvozCtrl   = new RozvozController();
         rozvozPanel   = new RozvozPanel(rozvozCtrl);
@@ -113,6 +115,7 @@ public class MainView extends JFrame {
 
         btn.addActionListener(e -> {
             cardLayout.show(contentPane, card);
+            if (CARD_UC02.equals(card)) vyrobaPanel.refreshMaterials();
             if (CARD_UC03.equals(card)) objednatPanel.refreshSklad();
             if (CARD_UC04.equals(card)) rozvozPanel.refreshAll();
         });
@@ -127,12 +130,17 @@ public class MainView extends JFrame {
         uvLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
         uvod.add(uvLabel);
 
+        ZakazkyPanel zakazkyPanel = new ZakazkyPanel(z -> {
+            this.vyrobaPanel.setZakazka(z);
+            cardLayout.show(contentPane, CARD_UC02);
+        });
+
         contentPane.add(uvod,                                                                          CARD_UVOD);
         contentPane.add(new PlaceholderPanel("UC01 – Prijímanie zákaziek", "Vytvorenie a správa zákaziek"), CARD_UC01);
-        contentPane.add(new PlaceholderPanel("UC02 – Plánovanie výroby",   "Plánovanie výrobných úloh"),     CARD_UC02);
+        contentPane.add(vyrobaPanel,                                                                   CARD_UC02);
         contentPane.add(objednatPanel,                                                                 CARD_UC03);
         contentPane.add(rozvozPanel,                                                                   CARD_UC04);
-        contentPane.add(new PlaceholderPanel("Zoznam zákaziek",            "Prehľad všetkých zákaziek"),     CARD_ZAKAZKY);
+        contentPane.add(zakazkyPanel,                                                               CARD_ZAKAZKY);
         contentPane.add(new PlaceholderPanel("Manažér",                    "Schvaľovanie objednávok"),       CARD_MANAZER);
 
         cardLayout.show(contentPane, CARD_UVOD);
