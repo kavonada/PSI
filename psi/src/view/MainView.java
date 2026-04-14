@@ -25,7 +25,7 @@ public class MainView extends JFrame {
     private final CardLayout cardLayout  = new CardLayout();
     private final JPanel     contentPane = new JPanel(cardLayout);
 
-    private final ObjednatMaterialPanel objednatPanel;
+    private final ObjednatMaterialView objednatPanel;
     private final RozvozPanel rozvozPanel;
     private final VyrobaPanel vyrobaPanel;
 
@@ -38,7 +38,7 @@ public class MainView extends JFrame {
 
         // --- Controller pre UC03 ---
         InventarController inventarCtrl = new InventarController();
-        objednatPanel = new ObjednatMaterialPanel(inventarCtrl);
+        objednatPanel = new ObjednatMaterialView(inventarCtrl);
         vyrobaPanel = new VyrobaPanel();
 
         RozvozController rozvozCtrl   = new RozvozController();
