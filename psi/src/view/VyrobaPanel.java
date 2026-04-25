@@ -101,7 +101,6 @@ public class VyrobaPanel extends JPanel {
         strojCombo.addItem(null);
         for (Stroj s : DataStore.stroje) strojCombo.addItem(s);
 
-        //aby null vyzeralo pekne
         ListCellRenderer<Object> nullRenderer = new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -167,7 +166,7 @@ public class VyrobaPanel extends JPanel {
         partialBtn.addActionListener(e -> ulozitCiastocne());
 
         JButton finalizeBtn = new JButton("✔ Naplánovať zákazku");
-        finalizeBtn.addActionListener(e -> finalizeZakazka());
+        finalizeBtn.addActionListener(e -> finalizujZakazku());
 
         btnPanel.add(deleteBtn);
         btnPanel.add(partialBtn);
@@ -251,6 +250,8 @@ public class VyrobaPanel extends JPanel {
                 vyrobaCtrl.poziadajOObjednanie(m, chybaMne);
                 JOptionPane.showMessageDialog(this, "Požiadavka odoslaná na sklad.");
             }
+        } else {
+            m.odober(mnozstvo);
         }
 
         // 7. FINÁLNE ULOŽENIE ÚLOHY
@@ -259,13 +260,19 @@ public class VyrobaPanel extends JPanel {
 
         nazovField.setText("");
         refreshTable();
+        refreshMaterials();
     }
 
     private void odstranUlohu() {
         int row = table.getSelectedRow();
         if (row >= 0 && aktualnaZakazka != null) {
+            VyrobnaUloha vymazavana = aktualnaZakazka.getVyrobneUlohy().remove(row);
+            if (!vymazavana.isCakaNaMaterial()) {
+                vymazavana.getMaterial().pridaj(vymazavana.getMnozstvo());
+            }
             aktualnaZakazka.getVyrobneUlohy().remove(row);
             refreshTable();
+            refreshMaterials();
         } else {
             JOptionPane.showMessageDialog(this, "Vyberte úlohu zo zoznamu.");
         }
@@ -298,7 +305,7 @@ public class VyrobaPanel extends JPanel {
         JOptionPane.showMessageDialog(this, "Zákazka uložená ako rozpracovaná.");
     }
 
-    private void finalizeZakazka() {
+    private void finalizujZakazku() {
         if (aktualnaZakazka == null) return;
 
         vyrobaCtrl.prehodnotStavZakazky(aktualnaZakazka);

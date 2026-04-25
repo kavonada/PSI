@@ -16,6 +16,7 @@ public class DataStore {
     public static List<Rozvoz> cakajuceRozvozy = new ArrayList<>();
     public static List<Pracovnik> pracovnici = new ArrayList<>();
     public static List<Stroj> stroje = new ArrayList<>();
+    public static List<PoziadavkaNaMaterial> poziadavkyNaMaterial = new ArrayList<>();
 
     public static final String MANAZER_HESLO = "manazer123";
 

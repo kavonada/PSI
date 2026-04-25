@@ -1,5 +1,7 @@
 package controller;
 
+import model.DataStore;
+import model.PoziadavkaNaMaterial;
 import model.Zakazka;
 import model.use_case_2.Pracovnik;
 import model.use_case_2.Stroj;
@@ -20,7 +22,8 @@ public class VyrobaController {
     }
 
     public void poziadajOObjednanie(Material m, int chybajuceMnozstvo) {
-        // Tu sa v budúcnosti napojíte na UC03 (Sklad), napr. pridanie do "Wanted" listu.
+        PoziadavkaNaMaterial novaPoziadavka = new PoziadavkaNaMaterial(m, chybajuceMnozstvo);
+        DataStore.poziadavkyNaMaterial.add(novaPoziadavka);
         System.out.println("INFO PRE SKLAD: Treba doobjednať " + chybajuceMnozstvo + " ks materiálu: " + m.getNazov());
     }
 
@@ -33,7 +36,6 @@ public class VyrobaController {
         boolean vsetkoPripravene = true;
 
         for (VyrobnaUloha u : z.getVyrobneUlohy()) {
-            // Zákazka je ČIASTOČNÁ ak: chýba materiál ALEBO nie je priradený/dostupný pracovník/stroj
             if (u.isCakaNaMaterial() || u.getPracovnik() == null || u.getStroj() == null) {
                 vsetkoPripravene = false;
                 break;
