@@ -34,6 +34,14 @@ public class Material {
         mnozstvo += ks;
     }
 
+    public boolean odober(int ks) {
+        if (this.mnozstvo >= ks) {
+            this.mnozstvo -= ks;
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public String toString() { return nazov + " | Množstvo: " + mnozstvo + " ks | Dodávateľ: " + dodavatel; }
 }

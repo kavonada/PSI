@@ -268,7 +268,7 @@ public class VyrobaPanel extends JPanel {
         if (row >= 0 && aktualnaZakazka != null) {
             VyrobnaUloha vymazavana = aktualnaZakazka.getVyrobneUlohy().remove(row);
             if (!vymazavana.isCakaNaMaterial()) {
-                vymazavana.getMaterial().pridaj(vymazavana.getMnozstvo());
+                vymazavana.getMaterial().zmenitMnozstvo(vymazavana.getMnozstvo());
             }
             aktualnaZakazka.getVyrobneUlohy().remove(row);
             refreshTable();
