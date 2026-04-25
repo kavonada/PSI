@@ -270,7 +270,6 @@ public class VyrobaPanel extends JPanel {
             if (!vymazavana.isCakaNaMaterial()) {
                 vymazavana.getMaterial().zmenitMnozstvo(vymazavana.getMnozstvo());
             }
-            aktualnaZakazka.getVyrobneUlohy().remove(row);
             refreshTable();
             refreshMaterials();
         } else {
