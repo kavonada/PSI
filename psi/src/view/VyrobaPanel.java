@@ -22,7 +22,7 @@ public class VyrobaPanel extends JPanel {
     private JComboBox<String> operaciaCombo;
     private JComboBox<String> materialCombo;
     private JSpinner mnozstvoSpinner;
-    private JComboBox<Pracovnik> workerCombo;
+    private JComboBox<Pracovnik> pracovnikCombo;
     private JComboBox<Stroj> strojCombo;
     private JLabel dostupnostLabel;
 
@@ -71,12 +71,12 @@ public class VyrobaPanel extends JPanel {
     }
 
     private JSplitPane buildMain() {
-        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, buildForm(), buildTable());
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, buildFormular(), buildTable());
         split.setResizeWeight(0.4);
         return split;
     }
 
-    private JPanel buildForm() {
+    private JPanel buildFormular() {
         JPanel p = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(5, 5, 5, 5);
@@ -93,9 +93,9 @@ public class VyrobaPanel extends JPanel {
 
         mnozstvoSpinner = new JSpinner(new SpinnerNumberModel(1,1,1000,1));
 
-        workerCombo = new JComboBox<>();
-        workerCombo.addItem(null);
-        for (Pracovnik w : DataStore.pracovnici) workerCombo.addItem(w);
+        pracovnikCombo = new JComboBox<>();
+        pracovnikCombo.addItem(null);
+        for (Pracovnik w : DataStore.pracovnici) pracovnikCombo.addItem(w);
 
         strojCombo = new JComboBox<>();
         strojCombo.addItem(null);
@@ -108,7 +108,7 @@ public class VyrobaPanel extends JPanel {
                 return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             }
         };
-        workerCombo.setRenderer(nullRenderer);
+        pracovnikCombo.setRenderer(nullRenderer);
         strojCombo.setRenderer(nullRenderer);
 
         dostupnostLabel = new JLabel("");
@@ -120,7 +120,7 @@ public class VyrobaPanel extends JPanel {
         addRow(p, c, y++, "Operácia:", operaciaCombo);
         addRow(p, c, y++, "Materiál:", materialCombo);
         addRow(p, c, y++, "Množstvo:", mnozstvoSpinner);
-        addRow(p, c, y++, "Pracovník:", workerCombo);
+        addRow(p, c, y++, "Pracovník:", pracovnikCombo);
         addRow(p, c, y++, "Stroj:", strojCombo);
 
         c.gridx=0; c.gridy=y++; c.gridwidth=2;
@@ -129,7 +129,7 @@ public class VyrobaPanel extends JPanel {
         c.gridy=y;
         p.add(addBtn, c);
 
-        workerCombo.addActionListener(e -> kontrolujDostupnost());
+        pracovnikCombo.addActionListener(e -> kontrolujDostupnost());
         strojCombo.addActionListener(e -> kontrolujDostupnost());
 
         return p;
@@ -183,7 +183,7 @@ public class VyrobaPanel extends JPanel {
     }
 
     private void kontrolujDostupnost() {
-        Pracovnik w = (Pracovnik) workerCombo.getSelectedItem();
+        Pracovnik w = (Pracovnik) pracovnikCombo.getSelectedItem();
         Stroj s = (Stroj) strojCombo.getSelectedItem();
 
         if (w == null || s == null) {
@@ -220,7 +220,7 @@ public class VyrobaPanel extends JPanel {
         }
 
         // 4. ZÍSKANIE ZDROJOV (Môžu byť null, ak používateľ vybral "Nenastavené")
-        Pracovnik w = (Pracovnik) workerCombo.getSelectedItem();
+        Pracovnik w = (Pracovnik) pracovnikCombo.getSelectedItem();
         Stroj s = (Stroj) strojCombo.getSelectedItem();
 
         // 5. KONTROLA DOSTUPNOSTI (IBA AK NIE SÚ NULL)
