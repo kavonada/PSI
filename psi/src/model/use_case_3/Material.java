@@ -30,11 +30,8 @@ public class Material {
     }
     public double getCena() { return cena; }
 
-    public void pridaj(int ks)    { mnozstvo += ks; }
-
-    public boolean odober(int ks) {
-        if (mnozstvo >= ks) { mnozstvo -= ks; return true; }
-        return false;
+    public void zmenitMnozstvo(int ks) {
+        mnozstvo += ks;
     }
 
     @Override

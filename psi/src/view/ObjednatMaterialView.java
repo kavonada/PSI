@@ -140,7 +140,7 @@ public class ObjednatMaterialView extends JPanel {
         // Info limit
         lc.gridy = row; fc.gridy = row++;
         lc.gridwidth = 2;
-        JLabel limitInfo = new JLabel("⚠ Objednávky nad " + (int) controller.getLimitOrder()
+        JLabel limitInfo = new JLabel("⚠ Objednávky nad " + (int) controller.getLimitObjednavky()
                 + " EUR vyžadujú schválenie manažéra.");
         limitInfo.setFont(new Font("SansSerif", Font.ITALIC, 11));
         limitInfo.setForeground(new Color(150, 80, 0));
@@ -156,9 +156,9 @@ public class ObjednatMaterialView extends JPanel {
         lc.gridy = row; fc.gridy = row++;
         p.add(new JLabel("Dodávateľ:"), lc);
         dodavatelCombo = new JComboBox<>(
-                controller.getSuppliers()
+                controller.getDodavatelia()
                         .stream()
-                        .map(Dodavatel::getName)
+                        .map(Dodavatel::getNazov)
                         .toArray(String[]::new)
         );
         p.add(dodavatelCombo, fc);
@@ -233,13 +233,13 @@ public class ObjednatMaterialView extends JPanel {
 
         double totalPrice = 0;
 
-        for (KosikPolozka o : controller.getCart()) {
+        for (KosikPolozka o : controller.getKosik()) {
             cartTableModel.addRow(new Object[]{
                     o.getMaterial().getNazov(),
-                    o.getQuantity(),
-                    String.format("%.2f", o.getPrice())
+                    o.getMnozstvo(),
+                    String.format("%.2f", o.getCena())
             });
-            totalPrice += o.getPrice();
+            totalPrice += o.getCena();
         }
         totalCartPriceLabel.setText(String.format("Celkom: %.2f EUR", totalPrice));
     }

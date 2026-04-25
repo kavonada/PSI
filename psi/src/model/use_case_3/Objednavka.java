@@ -7,34 +7,34 @@ public class Objednavka {
     private static int counter = 1;
 
     private final int id;
-    private final List<KosikPolozka> order_items;
-    private final String supplier;
-    private final double cost;
-    private final String status;
+    private final List<KosikPolozka> polozky;
+    private final String dodavatel;
+    private final double celkovaSuma;
+    private final String stav;
 
     public Objednavka(List<KosikPolozka> polozky, String dodavatel) {
         this.id = counter++;
-        this.order_items = polozky;
-        this.supplier = dodavatel;
-        this.cost = calculateCost();
-        this.status = setStatus();
+        this.polozky = polozky;
+        this.dodavatel = dodavatel;
+        this.celkovaSuma = vypocitajSumu();
+        this.stav = setStav();
     }
 
-    private double calculateCost() {
+    private double vypocitajSumu() {
         double sum = 0;
         for (KosikPolozka p : getOrderItems()) {
-            sum += p.getPrice();
+            sum += p.getCena();
         }
         return sum;
     }
 
     public int getId() { return id; }
-    public List<KosikPolozka> getOrderItems() { return order_items; }
-    public String getSupplier() { return supplier; }
-    public double getCost() { return cost; }
-    public String getStatus() { return status; }
-    public String setStatus() {
-        if (getCost() >= 1000)
+    public List<KosikPolozka> getOrderItems() { return polozky; }
+    public String getDodavatel() { return dodavatel; }
+    public double getCelkovaSuma() { return celkovaSuma; }
+    public String getStav() { return stav; }
+    public String setStav() {
+        if (getCelkovaSuma() >= 1000)
             return "'Čaká na schválenie'";
         return "'Vytvorená'";
     }

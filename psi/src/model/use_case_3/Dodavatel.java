@@ -2,17 +2,17 @@ package model.use_case_3;
 
 public class Dodavatel {
 
-    private final String name;
-    private final int deliveryDays;
-    private final double price;
+    private final String nazov;
+    private final int dniDodania;
+    private final double cena;
 
-    public Dodavatel(String name, int deliveryDays, double price) {
-        this.name = name;
-        this.deliveryDays = deliveryDays;
-        this.price = price;
+    public Dodavatel(String nazov, int dniDodania, double cena) {
+        this.nazov = nazov;
+        this.dniDodania = dniDodania;
+        this.cena = cena;
     }
 
-    public String getName() { return name; }
-    public int getDeliveryDays() { return deliveryDays; }
-    public double getPrice() { return price; }
+    public String getNazov() { return nazov; }
+    public int getDniDodania() { return dniDodania; }
+    public double getCena() { return cena; }
 }
