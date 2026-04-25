@@ -246,12 +246,12 @@ public class VyrobaPanel extends JPanel {
                     JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
             if (res == JOptionPane.YES_OPTION) {
-                int chybaMne = mnozstvo - m.getMnozstvo();
+                int chybaMne = mnozstvo - m.getDostupneMnozstvo();
                 vyrobaCtrl.poziadajOObjednanie(m, chybaMne);
                 JOptionPane.showMessageDialog(this, "Požiadavka odoslaná na sklad.");
             }
         } else {
-            m.odober(mnozstvo);
+            m.rezervuj(mnozstvo);
         }
 
         // 7. FINÁLNE ULOŽENIE ÚLOHY
@@ -268,7 +268,7 @@ public class VyrobaPanel extends JPanel {
         if (row >= 0 && aktualnaZakazka != null) {
             VyrobnaUloha vymazavana = aktualnaZakazka.getVyrobneUlohy().remove(row);
             if (!vymazavana.isCakaNaMaterial()) {
-                vymazavana.getMaterial().zmenitMnozstvo(vymazavana.getMnozstvo());
+                vymazavana.getMaterial().zrusRezervaciu(vymazavana.getMnozstvo());
             }
             refreshTable();
             refreshMaterials();
@@ -325,7 +325,7 @@ public class VyrobaPanel extends JPanel {
     public void refreshMaterials() {
         DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
         for (model.use_case_3.Material m : InventarController.getMaterials()) {
-            model.addElement(m.getNazov() + " (Sklad: " + m.getMnozstvo() + " ks)");
+            model.addElement(m.getNazov() + " (Sklad: " + m.getDostupneMnozstvo() + " ks)");
         }
         materialCombo.setModel(model);
     }
