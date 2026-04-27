@@ -10,14 +10,14 @@ public class Objednavka {
     private final List<KosikPolozka> polozky;
     private final String dodavatel;
     private final double celkovaSuma;
-    private final String stav;
+    private String stav;
 
     public Objednavka(List<KosikPolozka> polozky, String dodavatel) {
         this.id = counter++;
-        this.polozky = polozky;
+        this.polozky = List.copyOf(polozky);
         this.dodavatel = dodavatel;
         this.celkovaSuma = vypocitajSumu();
-        this.stav = setStav();
+        this.stav = pociatocnyStav();
     }
 
     private double vypocitajSumu() {
@@ -28,14 +28,14 @@ public class Objednavka {
         return sum;
     }
 
+    private String pociatocnyStav() { return (celkovaSuma >= 1000) ? "Caka na chvalenie" : "Vytvorena"; }
+    public void dorucit() { this.setStav("Dorucena"); }
+    public void vybalit() { this.setStav("Vybavena"); }
+
     public int getId() { return id; }
     public List<KosikPolozka> getOrderItems() { return polozky; }
     public String getDodavatel() { return dodavatel; }
     public double getCelkovaSuma() { return celkovaSuma; }
     public String getStav() { return stav; }
-    public String setStav() {
-        if (getCelkovaSuma() >= 1000)
-            return "'Čaká na schválenie'";
-        return "'Vytvorená'";
-    }
+    public void setStav(String stav) { this.stav = stav; }
 }

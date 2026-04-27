@@ -9,11 +9,9 @@ import java.awt.*;
 
 /**
  * Hlavné okno aplikácie.
- * Ľavý sidebar s navigáciou, pravá časť zobrazuje aktívny panel (CardLayout).
  */
 public class MainView extends JFrame {
 
-    // Card mená – každý panel má unikátny kľúč
     public static final String CARD_UVOD    = "uvod";
     public static final String CARD_UC01    = "uc01";
     public static final String CARD_UC02    = "uc02";
@@ -25,33 +23,30 @@ public class MainView extends JFrame {
     private final CardLayout cardLayout  = new CardLayout();
     private final JPanel     contentPane = new JPanel(cardLayout);
 
-    private final ObjednatMaterialView objednatPanel;
+    private final InventarView inventarView;
     private final RozvozPanel rozvozPanel;
     private final VyrobaPanel vyrobaPanel;
 
     public MainView() {
-        setTitle("Výrobný systém PSISKO");
+        setTitle("Výrobný systém WoodFlow");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(1100, 700);
         setMinimumSize(new Dimension(850, 540));
         setLocationRelativeTo(null);
 
-        // --- Controller pre UC03 ---
         InventarController inventarCtrl = new InventarController();
-        objednatPanel = new ObjednatMaterialView(inventarCtrl);
+        inventarView = new InventarView(inventarCtrl);  // ⬅ nový view
         vyrobaPanel = new VyrobaPanel();
 
-        RozvozController rozvozCtrl   = new RozvozController();
-        rozvozPanel   = new RozvozPanel(rozvozCtrl);
+        RozvozController rozvozCtrl = new RozvozController();
+        rozvozPanel = new RozvozPanel(rozvozCtrl);
 
-        // Zostavenie UI
         JPanel root = new JPanel(new BorderLayout());
         root.add(buildSidebar(), BorderLayout.WEST);
-        root.add(buildContent(),  BorderLayout.CENTER);
+        root.add(buildContent(), BorderLayout.CENTER);
         setContentPane(root);
     }
 
-    // Sidebar
     private JPanel buildSidebar() {
         JPanel side = new JPanel();
         side.setLayout(new BoxLayout(side, BoxLayout.Y_AXIS));
@@ -59,7 +54,6 @@ public class MainView extends JFrame {
         side.setPreferredSize(new Dimension(200, 0));
         side.setBorder(new EmptyBorder(10, 0, 10, 0));
 
-        // Logo / názov
         JLabel logo = new JLabel("⚙ WoodFlow", SwingConstants.CENTER);
         logo.setFont(new Font("SansSerif", Font.BOLD, 18));
         logo.setForeground(Color.WHITE);
@@ -67,23 +61,17 @@ public class MainView extends JFrame {
         logo.setBorder(new EmptyBorder(10, 0, 20, 0));
         side.add(logo);
 
-        side.add(buildNavBtn("🏠  Úvod",                CARD_UVOD));
+        side.add(buildNavBtn("🏠  Úvod",             CARD_UVOD));
         side.add(Box.createVerticalStrut(4));
-
-        JLabel sep = sectionLabel("  USE CASES");
-        side.add(sep);
-
+        side.add(sectionLabel("  USE CASES"));
         side.add(buildNavBtn("1  Zákazky (UC01)",    CARD_UC01));
-        side.add(buildNavBtn("2  Výroba (UC02)",      CARD_UC02));
-        side.add(buildNavBtn("3  Inventár (UC03)",    CARD_UC03));
-        side.add(buildNavBtn("4  Rozvoz (UC04)",      CARD_UC04));
-
+        side.add(buildNavBtn("2  Výroba (UC02)",     CARD_UC02));
+        side.add(buildNavBtn("3  Inventár (UC03)",   CARD_UC03));
+        side.add(buildNavBtn("4  Rozvoz (UC04)",     CARD_UC04));
         side.add(Box.createVerticalStrut(4));
         side.add(sectionLabel("  OSTATNÉ"));
-
         side.add(buildNavBtn("📋  Zoznam zákaziek",  CARD_ZAKAZKY));
         side.add(buildNavBtn("🔐  Manažér",          CARD_MANAZER));
-
         side.add(Box.createVerticalGlue());
         return side;
     }
@@ -116,7 +104,7 @@ public class MainView extends JFrame {
         btn.addActionListener(e -> {
             cardLayout.show(contentPane, card);
             if (CARD_UC02.equals(card)) vyrobaPanel.refreshMaterials();
-            if (CARD_UC03.equals(card)) objednatPanel.refreshSklad();
+            if (CARD_UC03.equals(card)) inventarView.refreshAll();
             if (CARD_UC04.equals(card)) rozvozPanel.refreshAll();
         });
 
@@ -131,17 +119,17 @@ public class MainView extends JFrame {
         uvod.add(uvLabel);
 
         ZakazkyPanel zakazkyPanel = new ZakazkyPanel(z -> {
-            this.vyrobaPanel.setZakazka(z);
+            vyrobaPanel.setZakazka(z);
             cardLayout.show(contentPane, CARD_UC02);
         });
 
-        contentPane.add(uvod,                                                                          CARD_UVOD);
+        contentPane.add(uvod, CARD_UVOD);
         contentPane.add(new PlaceholderPanel("UC01 – Prijímanie zákaziek", "Vytvorenie a správa zákaziek"), CARD_UC01);
-        contentPane.add(vyrobaPanel,                                                                   CARD_UC02);
-        contentPane.add(objednatPanel,                                                                 CARD_UC03);
-        contentPane.add(rozvozPanel,                                                                   CARD_UC04);
-        contentPane.add(zakazkyPanel,                                                               CARD_ZAKAZKY);
-        contentPane.add(new PlaceholderPanel("Manažér",                    "Schvaľovanie objednávok"),       CARD_MANAZER);
+        contentPane.add(vyrobaPanel, CARD_UC02);
+        contentPane.add(inventarView, CARD_UC03);
+        contentPane.add(rozvozPanel, CARD_UC04);
+        contentPane.add(zakazkyPanel, CARD_ZAKAZKY);
+        contentPane.add(new PlaceholderPanel("Manažér", "Schvaľovanie objednávok"), CARD_MANAZER);
 
         cardLayout.show(contentPane, CARD_UVOD);
         return contentPane;
