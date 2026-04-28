@@ -1,13 +1,11 @@
 package model.use_case_2;
 
-import model.Zakazka;
-import model.use_case_3.Material;
+import model.PolozkaMaterialu;
 
 public class VyrobnaUloha {
     private final String nazov;
     private final String operacia;
-    private final Material material;
-    private final int mnozstvo;
+    private final PolozkaMaterialu polozkaMaterialu;
     private final Pracovnik pracovnik;
     private final Stroj stroj;
     private final boolean cakaNaMaterial;
@@ -15,14 +13,14 @@ public class VyrobnaUloha {
 
     public enum StavUlohy {
         NAPLANOVANA,
-        VO_VYROBE
+        VO_VYROBE,
+        DOKONCENA
     }
 
-    public VyrobnaUloha(String nazov, String operacia, Material material, int mnozstvo, Pracovnik pracovnik, Stroj stroj, boolean cakaNaMaterial) {
+    public VyrobnaUloha(String nazov, String operacia, PolozkaMaterialu polozkaMaterialu, Pracovnik pracovnik, Stroj stroj, boolean cakaNaMaterial) {
         this.nazov = nazov;
         this.operacia = operacia;
-        this.material = material;
-        this.mnozstvo = mnozstvo;
+        this.polozkaMaterialu = polozkaMaterialu;
         this.pracovnik = pracovnik;
         this.stroj = stroj;
         this.cakaNaMaterial = cakaNaMaterial;
@@ -31,8 +29,7 @@ public class VyrobnaUloha {
 
     public String getNazov() { return nazov; }
     public String getOperacia() { return operacia; }
-    public Material getMaterial() { return material; }
-    public int getMnozstvo() { return mnozstvo; }
+    public PolozkaMaterialu getPolozkaMaterialu() { return polozkaMaterialu; }
     public Pracovnik getPracovnik() { return pracovnik; }
     public Stroj getStroj() { return stroj; }
     public StavUlohy getStav() { return stav; }
@@ -40,9 +37,17 @@ public class VyrobnaUloha {
 
     // Zavolá sa, keď úloha bude reálne vo výrobe
     public void oznacAkoRozpracovanu() {
-        if (!this.cakaNaMaterial) {
-            this.material.spotrebujRezervovane(this.mnozstvo);
-        }
         this.stav = StavUlohy.VO_VYROBE;
+    }
+
+    // Zavola sa, ked bude vyrobena
+    public void dokonciUlohu(int spotrebovanyMaterial){
+        if (this.stav != StavUlohy.VO_VYROBE) {
+            return;
+        }
+        if (!this.cakaNaMaterial) {
+            this.polozkaMaterialu.spotrebujRezervovane(spotrebovanyMaterial);
+        }
+        this.stav = StavUlohy.DOKONCENA;
     }
 }

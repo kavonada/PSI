@@ -18,7 +18,7 @@ public class VyrobaController {
     }
 
     public boolean jeDostatokMaterialu(Material m, int pozadovaneMnozstvo) {
-        return m.getDostupneMnozstvo() >= pozadovaneMnozstvo;
+        return m.getMnozstvo() >= pozadovaneMnozstvo;
     }
 
     public void poziadajOObjednanie(Material m, int chybajuceMnozstvo) {
@@ -53,7 +53,7 @@ public class VyrobaController {
     public void uvolniRezervacie(Zakazka z) {
         for (VyrobnaUloha u : z.getVyrobneUlohy()) {
             if (!u.isCakaNaMaterial() && !u.getStav().equals("VO_VYROBE")) {
-                u.getMaterial().zrusRezervaciu(u.getMnozstvo());
+                u.getPolozkaMaterialu().zrusRezervaciu(u.getPolozkaMaterialu().getPozadovaneMnozstvo());
             }
         }
         z.setStav(Zakazka.StavZakazky.ZRUSENA);

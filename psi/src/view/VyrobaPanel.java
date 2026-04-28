@@ -3,6 +3,7 @@ package view;
 import controller.InventarController;
 import controller.VyrobaController;
 import model.DataStore;
+import model.PolozkaMaterialu;
 import model.Zakazka;
 import model.use_case_2.*;
 import model.use_case_3.Material;
@@ -238,7 +239,9 @@ public class VyrobaPanel extends JPanel {
         Material m = controller.InventarController.getMaterials().get(materialCombo.getSelectedIndex());
         int mnozstvo = (Integer) mnozstvoSpinner.getValue();
 
-        boolean dostatok = vyrobaCtrl.jeDostatokMaterialu(m, mnozstvo);
+        PolozkaMaterialu pm = new PolozkaMaterialu(m, mnozstvo);
+
+        boolean dostatok = pm.jeDostatok();
         if (!dostatok) {
             int res = JOptionPane.showConfirmDialog(this,
                     "Na sklade nie je dostatok tohto materiálu. Chcete poslať požiadavku na doobjednanie?",
@@ -246,16 +249,16 @@ public class VyrobaPanel extends JPanel {
                     JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
             if (res == JOptionPane.YES_OPTION) {
-                int chybaMne = mnozstvo - m.getDostupneMnozstvo();
+                int chybaMne = mnozstvo - m.getMnozstvo();
                 vyrobaCtrl.poziadajOObjednanie(m, chybaMne);
                 JOptionPane.showMessageDialog(this, "Požiadavka odoslaná na sklad.");
             }
         } else {
-            m.rezervuj(mnozstvo);
+            pm.rezervuj(mnozstvo);
         }
 
         // 7. FINÁLNE ULOŽENIE ÚLOHY
-        VyrobnaUloha uloha = new VyrobnaUloha(nazovField.getText(), operaciaCombo.getSelectedItem().toString(), m, mnozstvo, w, s, !dostatok);
+        VyrobnaUloha uloha = new VyrobnaUloha(nazovField.getText(), operaciaCombo.getSelectedItem().toString(), pm, w, s, !dostatok);
         aktualnaZakazka.getVyrobneUlohy().add(uloha);
 
         nazovField.setText("");
@@ -268,7 +271,7 @@ public class VyrobaPanel extends JPanel {
         if (row >= 0 && aktualnaZakazka != null) {
             VyrobnaUloha vymazavana = aktualnaZakazka.getVyrobneUlohy().remove(row);
             if (!vymazavana.isCakaNaMaterial()) {
-                vymazavana.getMaterial().zrusRezervaciu(vymazavana.getMnozstvo());
+                vymazavana.getPolozkaMaterialu().zrusRezervaciu(vymazavana.getPolozkaMaterialu().getPozadovaneMnozstvo());
             }
             refreshTable();
             refreshMaterials();
@@ -284,7 +287,7 @@ public class VyrobaPanel extends JPanel {
         for (VyrobnaUloha u : aktualnaZakazka.getVyrobneUlohy()) {
             String stav = u.isCakaNaMaterial() ? "Čaká na materiál" : "Pripravené";
             tableModel.addRow(new Object[]{
-                    u.getNazov(), u.getOperacia(), u.getMaterial().getNazov(), u.getMnozstvo(),
+                    u.getNazov(), u.getOperacia(), u.getPolozkaMaterialu().getNazov(), u.getPolozkaMaterialu().getPozadovaneMnozstvo(),
                     u.getPracovnik().getMeno(), u.getStroj().getNazov(), stav
             });
         }
@@ -325,7 +328,7 @@ public class VyrobaPanel extends JPanel {
     public void refreshMaterials() {
         DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
         for (model.use_case_3.Material m : InventarController.getMaterials()) {
-            model.addElement(m.getNazov() + " (Sklad: " + m.getDostupneMnozstvo() + " ks)");
+            model.addElement(m.getNazov() + " (Sklad: " + m.getMnozstvo() + " ks)");
         }
         materialCombo.setModel(model);
     }
