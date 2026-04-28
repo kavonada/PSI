@@ -2,6 +2,7 @@ package view;
 
 import controller.InventarController;
 import controller.RozvozController;
+import controller.ZakazkaController;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -117,6 +118,8 @@ public class MainView extends JFrame {
         JLabel uvLabel = new JLabel("Vitajte v systéme WoodFlow", SwingConstants.CENTER);
         uvLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
         uvod.add(uvLabel);
+        ZakazkaController zakazkaController = new ZakazkaController();
+        PrijatZakazkuView prijatZakazkuView = new PrijatZakazkuView(zakazkaController);
 
         ZakazkyPanel zakazkyPanel = new ZakazkyPanel(z -> {
             vyrobaPanel.setZakazka(z);
@@ -124,7 +127,7 @@ public class MainView extends JFrame {
         });
 
         contentPane.add(uvod, CARD_UVOD);
-        contentPane.add(new PlaceholderPanel("UC01 – Prijímanie zákaziek", "Vytvorenie a správa zákaziek"), CARD_UC01);
+        contentPane.add(prijatZakazkuView, CARD_UC01);
         contentPane.add(vyrobaPanel, CARD_UC02);
         contentPane.add(inventarView, CARD_UC03);
         contentPane.add(rozvozPanel, CARD_UC04);

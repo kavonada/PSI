@@ -2,7 +2,6 @@ package model;
 
 import model.use_case_3.Material;
 
-/* TOTO JE PRE UC02 */
 public class PolozkaMaterialu {
 
     private final Material material;

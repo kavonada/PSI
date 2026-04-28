@@ -7,6 +7,7 @@ import model.Zakaznik;
 import model.use_case_3.Material;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ZakazkaController {
@@ -49,5 +50,21 @@ public class ZakazkaController {
 
         DataStore.pridajZakazku(zakazka);
         return zakazka;
+    }
+
+    public List<Material> overMaterialy(List<Material> materialy) {
+        List<Material> nedostatkove = new ArrayList<>();
+
+        if (materialy == null) {
+            return nedostatkove;
+        }
+
+        for (Material material : materialy) {
+            if (material.getMnozstvo() <= 0) {
+                nedostatkove.add(material);
+            }
+        }
+
+        return nedostatkove;
     }
 }

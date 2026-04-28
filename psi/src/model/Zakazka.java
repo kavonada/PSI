@@ -22,7 +22,7 @@ public class Zakazka {
     private LocalDate terminDorucenia;
 
     private List<Material> materialy;
-    private List<PolozkaMaterialu> polozkyMaterialu;
+    // private List<PolozkaMaterialu> polozkyMaterialu;
     private List<VyrobnaUloha> vyrobneUlohy;
 
     private StavZakazky stav;
@@ -49,7 +49,7 @@ public class Zakazka {
         this.terminDorucenia = terminDorucenia;
         this.materialy = materialy;
         this.stav = StavZakazky.VYTVORENA;
-        this.polozkyMaterialu = new ArrayList<>();
+        // this.polozkyMaterialu = new ArrayList<>();
         this.vyrobneUlohy = new ArrayList<>();
     }
 
@@ -114,13 +114,13 @@ public class Zakazka {
         this.materialy = materialy;
     }
 
-    public List<PolozkaMaterialu> getPolozkyMaterialu() {
-        return polozkyMaterialu;
-    }
-
-    public void setPolozkyMaterialu(List<PolozkaMaterialu> polozkyMaterialu) {
-        this.polozkyMaterialu = polozkyMaterialu;
-    }
+//    public List<PolozkaMaterialu> getPolozkyMaterialu() {
+//        return polozkyMaterialu;
+//    }
+//
+//    public void setPolozkyMaterialu(List<PolozkaMaterialu> polozkyMaterialu) {
+//        this.polozkyMaterialu = polozkyMaterialu;
+//    }
 
     public Adresa getDodaciaAdresa() {
         return dodaciaAdresa;
