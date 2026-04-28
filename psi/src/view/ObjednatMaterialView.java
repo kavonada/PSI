@@ -52,7 +52,7 @@ public class ObjednatMaterialView extends JPanel {
 
     // Stavebne prvky
     private JLabel buildNadpis() {
-        JLabel lbl = new JLabel("UC03 – Objednanie materiálu", SwingConstants.LEFT);
+        JLabel lbl = new JLabel("Objednanie materiálu", SwingConstants.LEFT);
         lbl.setFont(new Font("SansSerif", Font.BOLD, 20));
         lbl.setForeground(new Color(40, 70, 120));
         lbl.setBorder(new EmptyBorder(0, 0, 8, 0));
@@ -79,7 +79,7 @@ public class ObjednatMaterialView extends JPanel {
         p.setBackground(Color.WHITE);
         p.setBorder(buildTitledBorder("Aktuálny stav skladu"));
 
-        String[] cols = {"Materiál", "Množstvo (ks)", "Stav"};
+        String[] cols = {"Materiál", "Množstvo (ks)", "Min. množstvo", "Stav"};
         skladTableModel = new DefaultTableModel(cols, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
@@ -214,7 +214,7 @@ public class ObjednatMaterialView extends JPanel {
         // Tabuľka skladu
         skladTableModel.setRowCount(0);
         for (Material m : controller.getMaterials()) {
-            skladTableModel.addRow(new Object[]{m.getNazov(), m.getMnozstvo(), m.getStav()});
+            skladTableModel.addRow(new Object[]{m.getNazov(), m.getMnozstvo(), m.getLimit(), m.getStav()});
         }
 
         // ComboBox materiálov

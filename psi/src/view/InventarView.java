@@ -58,7 +58,7 @@ public class InventarView extends JPanel {
         header.setBackground(Color.WHITE);
         header.setBorder(new EmptyBorder(15, 15, 0, 15));
 
-        JLabel title = new JLabel("UC03 – Inventár", SwingConstants.LEFT);
+        JLabel title = new JLabel("Inventár", SwingConstants.LEFT);
         title.setFont(new Font("SansSerif", Font.BOLD, 20));
         title.setForeground(new Color(40, 70, 120));
         title.setBorder(new EmptyBorder(0, 0, 10, 0));
@@ -142,7 +142,7 @@ public class InventarView extends JPanel {
         lbl.setForeground(new Color(40, 70, 120));
         lbl.setBorder(new EmptyBorder(0, 0, 6, 0));
 
-        String[] cols = {"Materiál", "Množstvo (ks)", "Stav"};
+        String[] cols = {"Materiál", "Množstvo (ks)", "Min. množstvo", "Stav"};
         skladModel = new DefaultTableModel(cols, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
@@ -248,6 +248,7 @@ public class InventarView extends JPanel {
             skladModel.addRow(new Object[]{
                     m.getNazov(),
                     m.getMnozstvo(),
+                    m.getLimit(),
                     m.getStav()
             });
         }

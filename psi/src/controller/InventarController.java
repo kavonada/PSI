@@ -23,6 +23,20 @@ public class InventarController {
         materials.add(new Material("Masív dub", 50, 15.00, 20));
         materials.add(new Material("DTD doska", 15, 10.00, 20));
         materials.add(new Material("MDF doska", 5, 12.00, 20));
+        // Masiv
+        materials.add(new Material("Masív buk", 40, 12.00, 15));
+        materials.add(new Material("Masív orech kráľovský", 50, 45.00, 5));
+        materials.add(new Material("Smrekový hranol", 100, 8.50, 50));
+        materials.add(new Material("Borovicová škárovka", 20, 18.00, 30));
+        // Dosky
+        materials.add(new Material("Preglejka breza", 18, 22.00, 10));
+        materials.add(new Material("LDTD Biela perlička", 18, 9.50, 40));
+        materials.add(new Material("HDF doska surová", 3, 4.00, 100));
+        materials.add(new Material("Dyhovaná doska dub", 19, 35.00, 12));
+        // Spotrebny material
+        materials.add(new Material("Tvrdý voskový olej (1 liter)", 10, 28.00, 5));
+        materials.add(new Material("Lepidlo na drevo D3", 30, 15.00, 20));
+        materials.add(new Material("Moridlo orech", 10, 9.00, 10));
 
         dodavatelia.add(new Dodavatel("WoodSupply s.r.o.", 2, 3.99));
         dodavatelia.add(new Dodavatel("DrevMateriál a.s.", 3, 2.99));

@@ -64,10 +64,10 @@ public class MainView extends JFrame {
         side.add(buildNavBtn("🏠  Úvod",             CARD_UVOD));
         side.add(Box.createVerticalStrut(4));
         side.add(sectionLabel("  USE CASES"));
-        side.add(buildNavBtn("1  Zákazky (UC01)",    CARD_UC01));
-        side.add(buildNavBtn("2  Výroba (UC02)",     CARD_UC02));
-        side.add(buildNavBtn("3  Inventár (UC03)",   CARD_UC03));
-        side.add(buildNavBtn("4  Rozvoz (UC04)",     CARD_UC04));
+        side.add(buildNavBtn("1  Zákazky",    CARD_UC01));
+        side.add(buildNavBtn("2  Výroba",     CARD_UC02));
+        side.add(buildNavBtn("3  Inventár",   CARD_UC03));
+        side.add(buildNavBtn("4  Rozvoz",     CARD_UC04));
         side.add(Box.createVerticalStrut(4));
         side.add(sectionLabel("  OSTATNÉ"));
         side.add(buildNavBtn("📋  Zoznam zákaziek",  CARD_ZAKAZKY));
