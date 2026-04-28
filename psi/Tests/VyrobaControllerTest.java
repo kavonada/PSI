@@ -1,4 +1,5 @@
 import controller.VyrobaController;
+import model.PolozkaMaterialu;
 import model.Zakazka;
 import model.Zakaznik;
 import model.Adresa;
@@ -19,6 +20,7 @@ class VyrobaControllerTest {
     private VyrobaController controller;
     private Zakazka zakazka;
     private Material drevo;
+    private PolozkaMaterialu pm_drevo;
     private Pracovnik dostupnyPracovnik;
     private Pracovnik nedostupnyPracovnik;
     private Stroj dostupnyStroj;
@@ -28,6 +30,7 @@ class VyrobaControllerTest {
     void setUp() {
         controller = new VyrobaController();
         drevo = new Material("Dubové drevo", 100, 5, 2000);
+        pm_drevo = new PolozkaMaterialu(drevo, 100);
         dostupnyPracovnik = new Pracovnik("Jozef", true, false);
         nedostupnyPracovnik = new Pracovnik("Fero", false, false);
         dostupnyStroj = new Stroj("Píla", true);
@@ -85,21 +88,21 @@ class VyrobaControllerTest {
 
     @Test
     void testPrehodnotStav_VsetkoPripravene() {
-        zakazka.getVyrobneUlohy().add(new VyrobnaUloha("Rezanie", "Rezanie", drevo, 10, dostupnyPracovnik, dostupnyStroj, false));
+        zakazka.getVyrobneUlohy().add(new VyrobnaUloha("Rezanie", "Rezanie", pm_drevo, dostupnyPracovnik, dostupnyStroj, false));
         controller.prehodnotStavZakazky(zakazka);
         assertEquals(Zakazka.StavZakazky.NAPLANOVANA, zakazka.getStav());
     }
 
     @Test
     void testPrehodnotStav_Ciastocne_ChybaMaterial() {
-        zakazka.getVyrobneUlohy().add(new VyrobnaUloha("Rezanie", "Rezanie", drevo, 10, dostupnyPracovnik, dostupnyStroj, true));
+        zakazka.getVyrobneUlohy().add(new VyrobnaUloha("Rezanie", "Rezanie", pm_drevo, dostupnyPracovnik, dostupnyStroj, true));
         controller.prehodnotStavZakazky(zakazka);
         assertEquals(Zakazka.StavZakazky.CIASTOCNE_NAPLANOVANA, zakazka.getStav());
     }
 
     @Test
     void testPrehodnotStav_Ciastocne_ChybaPracovnik() {
-        zakazka.getVyrobneUlohy().add(new VyrobnaUloha("Rezanie", "Rezanie", drevo, 10, null, dostupnyStroj, false));
+        zakazka.getVyrobneUlohy().add(new VyrobnaUloha("Rezanie", "Rezanie", pm_drevo, null, dostupnyStroj, false));
         controller.prehodnotStavZakazky(zakazka);
         assertEquals(Zakazka.StavZakazky.CIASTOCNE_NAPLANOVANA, zakazka.getStav());
     }

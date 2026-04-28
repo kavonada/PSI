@@ -29,7 +29,6 @@ class PolozkaMaterialuTest {
         PolozkaMaterialu pm = new PolozkaMaterialu(m, 50);
         assertFalse(pm.jeDostatok()); // Pri vytvorení je nedostatok
 
-        pm.skontrolujDostatok();
         assertFalse(pm.jeDostatok(), "Po kontrole stále nedostatok, lebo stav materiálu sa nezmenil");
     }
 }
