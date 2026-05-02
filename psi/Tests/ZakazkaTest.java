@@ -1,5 +1,5 @@
 import model.Adresa;
-import model.PolozkaMaterialu;
+import model.use_case_2.PolozkaMaterialu;
 import model.Zakazka;
 import model.Zakaznik;
 import model.use_case_2.VyrobnaUloha;
@@ -50,8 +50,6 @@ class ZakazkaTest {
 
         // Test inicializácie defaultných hodnôt a prázdnych listov v konštruktore
         assertEquals(Zakazka.StavZakazky.VYTVORENA, zakazka.getStav());
-        assertNotNull(zakazka.getPolozkyMaterialu());
-        assertTrue(zakazka.getPolozkyMaterialu().isEmpty());
         assertNotNull(zakazka.getVyrobneUlohy());
         assertTrue(zakazka.getVyrobneUlohy().isEmpty());
     }
@@ -93,10 +91,6 @@ class ZakazkaTest {
         List<Material> noveMaterialy = new ArrayList<>();
         zakazka.setMaterialy(noveMaterialy);
         assertEquals(noveMaterialy, zakazka.getMaterialy());
-
-        List<PolozkaMaterialu> novePolozky = new ArrayList<>();
-        zakazka.setPolozkyMaterialu(novePolozky);
-        assertEquals(novePolozky, zakazka.getPolozkyMaterialu());
 
         List<VyrobnaUloha> noveUlohy = new ArrayList<>();
         zakazka.setVyrobneUlohy(noveUlohy);

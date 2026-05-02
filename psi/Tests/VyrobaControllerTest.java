@@ -1,5 +1,5 @@
 import controller.VyrobaController;
-import model.PolozkaMaterialu;
+import model.use_case_2.PolozkaMaterialu;
 import model.Zakazka;
 import model.Zakaznik;
 import model.Adresa;

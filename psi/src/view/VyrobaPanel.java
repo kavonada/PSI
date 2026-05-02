@@ -3,7 +3,7 @@ package view;
 import controller.InventarController;
 import controller.VyrobaController;
 import model.DataStore;
-import model.PolozkaMaterialu;
+import model.use_case_2.PolozkaMaterialu;
 import model.Zakazka;
 import model.use_case_2.*;
 import model.use_case_3.Material;
@@ -15,23 +15,24 @@ import java.awt.*;
 public class VyrobaPanel extends JPanel {
 
     private final VyrobaController vyrobaCtrl = new VyrobaController();
+    private Zakazka aktualnaZakazka;
+    public static VyrobaPanel instance;
 
     private JComboBox<Zakazka> zakazkaCombo;
     private JTextArea detailArea;
-
     private JTextField nazovField;
     private JComboBox<String> operaciaCombo;
-    private JComboBox<String> materialCombo;
+    private JComboBox<Object> materialCombo;
     private JSpinner mnozstvoSpinner;
     private JComboBox<Pracovnik> pracovnikCombo;
     private JComboBox<Stroj> strojCombo;
     private JLabel dostupnostLabel;
-
     private DefaultTableModel tableModel;
     private JTable table;
-    private Zakazka aktualnaZakazka;
 
     public VyrobaPanel() {
+        instance = this;
+
         setLayout(new BorderLayout());
         add(buildTop(), BorderLayout.NORTH);
         add(buildCenter(), BorderLayout.CENTER);
@@ -39,13 +40,21 @@ public class VyrobaPanel extends JPanel {
 
     private JPanel buildTop() {
         JPanel panel = new JPanel(new FlowLayout());
-        zakazkaCombo = new JComboBox<>(DataStore.zakazky.toArray(new Zakazka[0]));
+        zakazkaCombo = new JComboBox<>();
+        zakazkaCombo.addItem(null);
+        for (Zakazka z : DataStore.zakazky) {
+            zakazkaCombo.addItem(z);
+        }
         zakazkaCombo.setPreferredSize(new Dimension(750, 25));
 
         zakazkaCombo.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                if (value instanceof Zakazka z) value = z.getDisplayName() + " [" + z.getStav() + "]";
+                if (value == null) {
+                    value = "--- Vyberte zákazku ---";
+                } else if (value instanceof Zakazka z) {
+                    value = z.getDisplayName() + " [" + z.getStav() + "]";
+                }
                 return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             }
         });
@@ -85,13 +94,20 @@ public class VyrobaPanel extends JPanel {
 
         int y = 0;
         nazovField = new JTextField(15);
-        operaciaCombo = new JComboBox<>(new String[]{"Rezanie", "Lakovanie", "Montáž"});
+        operaciaCombo = new JComboBox<>(new String[]{ "--- Nenastavené ---", "Rezanie", "Lakovanie", "Montáž"});
 
         materialCombo = new JComboBox<>();
-        for (Material m : InventarController.getMaterials()) {
-            materialCombo.addItem(m.getNazov() + " (Sklad: " + m.getMnozstvo() + ")");
-        }
-
+        materialCombo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                if (value == null || value instanceof String) {
+                    value = "--- Nenastavené ---";
+                } else if (value instanceof Material m) {
+                    value = m.getNazov() + " (Sklad: " + m.getMnozstvo() + " ks)";
+                }
+                return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            }
+        });
         mnozstvoSpinner = new JSpinner(new SpinnerNumberModel(1,1,1000,1));
 
         pracovnikCombo = new JComboBox<>();
@@ -180,6 +196,9 @@ public class VyrobaPanel extends JPanel {
         if (aktualnaZakazka != null) {
             detailArea.setText(aktualnaZakazka.toString());
             refreshTable();
+        } else {
+            detailArea.setText("");
+            tableModel.setRowCount(0);
         }
     }
 
@@ -213,30 +232,20 @@ public class VyrobaPanel extends JPanel {
             return;
         }
 
-        // 3. VALIDÁCIA MATERIÁLU
-        int matIndex = materialCombo.getSelectedIndex();
-        if (matIndex < 0) {
-            JOptionPane.showMessageDialog(this, "Musíte vybrať materiál!", "Chýbajúce údaje", JOptionPane.WARNING_MESSAGE);
+        // 3. VALIDÁCIA OPERÁCIE
+        if (operaciaCombo.getSelectedIndex() == 0) {
+            JOptionPane.showMessageDialog(this, "Typ operácie nesmie byť prázdny!", "Chýbajúce údaje", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // 4. ZÍSKANIE ZDROJOV (Môžu byť null, ak používateľ vybral "Nenastavené")
-        Pracovnik w = (Pracovnik) pracovnikCombo.getSelectedItem();
-        Stroj s = (Stroj) strojCombo.getSelectedItem();
-
-        // 5. KONTROLA DOSTUPNOSTI (IBA AK NIE SÚ NULL)
-        // Týmto umožníme zadať len pracovníka, alebo len stroj
-        if ((w != null && !w.jeDostupny())){
-            JOptionPane.showMessageDialog(this, "Zvolený pracovník je nedostupný. Vyberte iného alebo nechajte nenastavené.", "Nedostupný zdroj", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        if (s != null && !s.jeDostupny()) {
-            JOptionPane.showMessageDialog(this, "Zvolený stroj je nedostupný. Vyberte iný alebo nechajte nenastavené.", "Nedostupný zdroj", JOptionPane.ERROR_MESSAGE);
+        // 4. VALIDÁCIA MATERIÁLU
+        Object vybranyObjekt = materialCombo.getSelectedItem();
+        if (vybranyObjekt == null || vybranyObjekt instanceof String) {
+            JOptionPane.showMessageDialog(this, "Materiál nesmie byť prázdny!", "Chýbajúce údaje", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // 6. SPRACOVANIE MATERIÁLU
-        Material m = controller.InventarController.getMaterials().get(materialCombo.getSelectedIndex());
+        Material m = (Material) vybranyObjekt;
         int mnozstvo = (Integer) mnozstvoSpinner.getValue();
 
         PolozkaMaterialu pm = new PolozkaMaterialu(m, mnozstvo);
@@ -249,12 +258,24 @@ public class VyrobaPanel extends JPanel {
                     JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
             if (res == JOptionPane.YES_OPTION) {
-                int chybaMne = mnozstvo - m.getMnozstvo();
-                vyrobaCtrl.poziadajOObjednanie(m, chybaMne);
+                vyrobaCtrl.poziadajOObjednanie(m, mnozstvo - m.getMnozstvo());
                 JOptionPane.showMessageDialog(this, "Požiadavka odoslaná na sklad.");
             }
         } else {
             pm.rezervuj(mnozstvo);
+        }
+
+        // 6. ZÍSKANIE ZDROJOV a KONTROLA DOSTUPNOSTI
+        Pracovnik w = (Pracovnik) pracovnikCombo.getSelectedItem();
+        Stroj s = (Stroj) strojCombo.getSelectedItem();
+
+        if ((w != null && !w.jeDostupny())){
+            JOptionPane.showMessageDialog(this, "Zvolený pracovník je nedostupný. Vyberte iného.", "Nedostupný zdroj", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (s != null && !s.jeDostupny()) {
+            JOptionPane.showMessageDialog(this, "Zvolený stroj je nedostupný. Vyberte iný.", "Nedostupný zdroj", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         // 7. FINÁLNE ULOŽENIE ÚLOHY
@@ -262,6 +283,8 @@ public class VyrobaPanel extends JPanel {
         aktualnaZakazka.getVyrobneUlohy().add(uloha);
 
         nazovField.setText("");
+        operaciaCombo.setSelectedIndex(0);
+        materialCombo.setSelectedIndex(0);
         refreshTable();
         refreshMaterials();
     }
@@ -285,10 +308,33 @@ public class VyrobaPanel extends JPanel {
         if (aktualnaZakazka == null) return;
 
         for (VyrobnaUloha u : aktualnaZakazka.getVyrobneUlohy()) {
-            String stav = u.isCakaNaMaterial() ? "Čaká na materiál" : "Pripravené";
+            String stav;
+            if(u.isCakaNaMaterial()){
+                stav = "Čaká na materiál";
+            } else if(u.getStav() == VyrobnaUloha.StavUlohy.VO_VYROBE){
+                stav = "Vo výrobe";
+            } else if(u.getStav() == VyrobnaUloha.StavUlohy.VYROBENA){
+                stav = "Vyrobená";
+            } else {
+                stav = "Naplánovaná";
+            }
+
+            String menoPracovnika;
+            if (u.getPracovnik() != null) {
+                menoPracovnika = u.getPracovnik().getMeno();
+            } else {
+                menoPracovnika = "--- Nenastavené ---";
+            }
+            String nazovStroja;
+            if (u.getStroj() != null) {
+                nazovStroja = u.getStroj().getNazov();
+            } else {
+                nazovStroja = "--- Nenastavené ---";
+            }
+
             tableModel.addRow(new Object[]{
                     u.getNazov(), u.getOperacia(), u.getPolozkaMaterialu().getNazov(), u.getPolozkaMaterialu().getPozadovaneMnozstvo(),
-                    u.getPracovnik().getMeno(), u.getStroj().getNazov(), stav
+                    menoPracovnika, nazovStroja, stav
             });
         }
 
@@ -326,10 +372,28 @@ public class VyrobaPanel extends JPanel {
     }
 
     public void refreshMaterials() {
-        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
-        for (model.use_case_3.Material m : InventarController.getMaterials()) {
-            model.addElement(m.getNazov() + " (Sklad: " + m.getMnozstvo() + " ks)");
+        DefaultComboBoxModel<Object> model = new DefaultComboBoxModel<>();
+        model.addElement("--- Nenastavené ---");
+        for (Material m : InventarController.getMaterials()) {
+            model.addElement(m);
         }
         materialCombo.setModel(model);
+    }
+
+    public void refreshZakazky() {
+        Object selected = zakazkaCombo.getSelectedItem();
+
+        DefaultComboBoxModel<Zakazka> model = new DefaultComboBoxModel<>();
+        model.addElement(null);
+
+        for (Zakazka z : DataStore.zakazky) {
+            model.addElement(z);
+        }
+
+        zakazkaCombo.setModel(model);
+
+        if (selected != null) {
+            zakazkaCombo.setSelectedItem(selected);
+        }
     }
 }

@@ -14,7 +14,7 @@ public class RozvozController {
 
     /** Stavy zákaziek, ktoré sú považované za dostupné na rozvoz. */
     private static final List<String> DOSTUPNE_STAVY = List.of(
-            "VYTVORENA", "NAPLANOVANA", "CIASTOCNE_NAPLANOVANA", "DOKONCENA"
+            "VYTVORENA", "NAPLANOVANA", "CIASTOCNE_NAPLANOVANA", "VYROBENA"
     );
 
     // ── Dotazy na dáta ────────────────────────────────────────────────────────
@@ -93,7 +93,7 @@ public class RozvozController {
     }
 
     /**
-     * Manažér schváli rozvoz → zákazky → stav DOKONCENA, rozvoz → Naplánovaný.
+     * Manažér schváli rozvoz → zákazky → stav VYROBENA, rozvoz → Naplánovaný.
      */
     public VysledokRozvozu schvalitRozvoz(int rozvozId) {
         Rozvoz r = najdiCakajuci(rozvozId);

@@ -1,6 +1,5 @@
 package model.use_case_2;
 
-import model.PolozkaMaterialu;
 import model.use_case_3.Material;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,7 +17,7 @@ class VyrobnaUlohaTest {
 
         assertEquals("Narezanie", uloha.getNazov());
         assertEquals("Rezanie", uloha.getOperacia());
-        assertEquals(m, uloha.getPolozkaMaterialu());
+        assertEquals(pm, uloha.getPolozkaMaterialu());
         assertEquals(5, uloha.getPolozkaMaterialu().getPozadovaneMnozstvo());
         assertEquals(p, uloha.getPracovnik());
         assertEquals(s, uloha.getStroj());

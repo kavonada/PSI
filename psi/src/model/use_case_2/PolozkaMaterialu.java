@@ -1,4 +1,4 @@
-package model;
+package model.use_case_2;
 
 import model.use_case_3.Material;
 

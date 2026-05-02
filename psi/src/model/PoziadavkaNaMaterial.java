@@ -10,7 +10,7 @@ public class PoziadavkaNaMaterial {
     public PoziadavkaNaMaterial(Material material, int chybajuceMnozstvo) {
         this.material = material;
         this.chybajuceMnozstvo = chybajuceMnozstvo;
-        this.vybavene = false; // Po vytvorení to sklad ešte nevybavil
+        this.vybavene = false; // Po vytvoreni to sklad este nevybavil
     }
 
     public Material getMaterial() { return material; }

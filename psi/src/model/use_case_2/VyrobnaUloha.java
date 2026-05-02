@@ -1,7 +1,5 @@
 package model.use_case_2;
 
-import model.PolozkaMaterialu;
-
 public class VyrobnaUloha {
     private final String nazov;
     private final String operacia;
@@ -14,7 +12,7 @@ public class VyrobnaUloha {
     public enum StavUlohy {
         NAPLANOVANA,
         VO_VYROBE,
-        DOKONCENA
+        VYROBENA
     }
 
     public VyrobnaUloha(String nazov, String operacia, PolozkaMaterialu polozkaMaterialu, Pracovnik pracovnik, Stroj stroj, boolean cakaNaMaterial) {
@@ -48,6 +46,6 @@ public class VyrobnaUloha {
         if (!this.cakaNaMaterial) {
             this.polozkaMaterialu.spotrebujRezervovane(spotrebovanyMaterial);
         }
-        this.stav = StavUlohy.DOKONCENA;
+        this.stav = StavUlohy.VYROBENA;
     }
 }

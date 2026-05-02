@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-/* TOTO BUDE NAJLEPSIE KED VYMAZEME CELU TRIEDU - podla mna to nemozeme vymazat, niekam musime ukladat zakazky*/
 public class DataStore {
 
     public static List<Zakazka> zakazky = new ArrayList<>();
@@ -22,6 +21,13 @@ public class DataStore {
 
     public static void pridajZakazku(Zakazka zakazka) {
         zakazky.add(zakazka);
+
+        if (view.ZakazkyPanel.instance != null) {
+            view.ZakazkyPanel.instance.refresh();
+        }
+        if (view.VyrobaPanel.instance != null) {
+            view.VyrobaPanel.instance.refreshZakazky();
+        }
     }
 
     public static List<Zakazka> getZakazky() {
