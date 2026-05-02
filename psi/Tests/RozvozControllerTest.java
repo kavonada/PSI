@@ -113,7 +113,7 @@ public class RozvozControllerTest {
         int id = controller.getCakajuceRozvozy().get(0).getId();
         controller.schvalitRozvoz(id);
 
-        // Zákazky musia mať stav VYROBENA po schválení
+        // Zákazky musia mať stav DOKONCENA po schválení
         assertEquals(Zakazka.StavZakazky.DOKONCENA, z1.getStav());
         assertEquals(Zakazka.StavZakazky.DOKONCENA, z2.getStav());
     }

@@ -22,7 +22,6 @@ public class Zakazka {
     private LocalDate terminDorucenia;
 
     private List<Material> materialy;
-    // private List<PolozkaMaterialu> polozkyMaterialu;
     private List<VyrobnaUloha> vyrobneUlohy;
 
     private StavZakazky stav;
