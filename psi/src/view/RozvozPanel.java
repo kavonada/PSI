@@ -15,31 +15,22 @@ import rozvoz.Rozvoz;
 
 /**
  * View pre UC04 – Plánovanie rozvozu.
- *
- * Rozloženie (tri karty pomocou JTabbedPane):
- *   1. Nový rozvoz   – formulár + výber zákaziek
- *   2. Čakajúce      – zoznam rozvozov čakajúcich na schválenie manažéra
- *   3. Schválené     – história schválených rozvozov
  */
 public class RozvozPanel extends JPanel {
 
     private final RozvozController controller;
 
-    // ── Tab 1 – Nový rozvoz ───────────────────────────────────────────────────
     private JComboBox<Vozidlo> vozidloCombo;
     private JLabel kapacitaLabel;
     private JTextField datumField;
 
-    // Tabuľka dostupných zákaziek (ľavá strana)
     private DefaultTableModel dostupneModel;
     private JTable             dostupneTable;
 
-    // Tabuľka vybraných zákaziek (pravá strana – poradie zastávok)
     private DefaultTableModel vybranteModel;
     private JTable             vybranteTable;
     private DefaultTableModel schvaleneModel;
 
-    // ── Statusbar ─────────────────────────────────────────────────────────────
     private JLabel statusLabel;
 
     private final JTabbedPane tabs = new JTabbedPane();
@@ -57,15 +48,11 @@ public class RozvozPanel extends JPanel {
         tabs.addTab("🚚  Nový rozvoz",   buildNovyRozvozTab());
         tabs.addTab("✔  Schválené rozvozy", buildSchvaleneTab());
 
-        // Pri prepnutí na kartu obnovíme dáta
+
         tabs.addChangeListener(e -> refreshAktualnaKarta());
 
         refreshAll();
     }
-
-    // ═════════════════════════════════════════════════════════════════════════
-    //  NADPIS & STATUSBAR
-    // ═════════════════════════════════════════════════════════════════════════
 
     private JLabel buildNadpis() {
         JLabel lbl = new JLabel("UC04 – Plánovanie rozvozu", SwingConstants.LEFT);
@@ -84,10 +71,6 @@ public class RozvozPanel extends JPanel {
         bar.add(statusLabel, BorderLayout.WEST);
         return bar;
     }
-
-    // ═════════════════════════════════════════════════════════════════════════
-    //  TAB 1 – NOVÝ ROZVOZ
-    // ═════════════════════════════════════════════════════════════════════════
 
     private JPanel buildNovyRozvozTab() {
         JPanel root = new JPanel(new BorderLayout(10, 10));
@@ -111,7 +94,6 @@ public class RozvozPanel extends JPanel {
         return root;
     }
 
-    /** Formulár: vozidlo, kapacita, dátum */
     private JPanel buildFormularPanel() {
         JPanel p = new JPanel(new GridBagLayout());
         p.setBackground(Color.WHITE);
@@ -281,11 +263,6 @@ public class RozvozPanel extends JPanel {
         return p;
     }
 
-
-    // ═════════════════════════════════════════════════════════════════════════
-    //  AKCIE (volané z tlačidiel)
-    // ═════════════════════════════════════════════════════════════════════════
-
     /** Presunie označenú zákazku z dostupných → vybrané. */
     private void pridatZakazku() {
         int row = dostupneTable.getSelectedRow();
@@ -384,11 +361,6 @@ public class RozvozPanel extends JPanel {
         refreshDostupne();
     }
 
-
-    // ═════════════════════════════════════════════════════════════════════════
-    //  REFRESH
-    // ═════════════════════════════════════════════════════════════════════════
-
     public void refreshAll() {
         refreshDostupne();
         refreshSchvalene();
@@ -418,10 +390,6 @@ public class RozvozPanel extends JPanel {
             }
         }
     }
-
-    // ═════════════════════════════════════════════════════════════════════════
-    //  POMOCNÉ
-    // ═════════════════════════════════════════════════════════════════════════
 
     /** Obnoví číslo zastávky (#) v tabuľke vybraných zákaziek. */
     private void renumberVybrane() {

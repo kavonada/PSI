@@ -22,7 +22,7 @@ public class RozvozController {
         List<Zakazka> result = new ArrayList<>();
 
         for (Zakazka z : DataStore.getZakazky()) {
-            if (z.getStav() == Zakazka.StavZakazky.DOKONCENA
+            if (z.getStav() == Zakazka.StavZakazky.NAPLANOVANA
                     && !z.isPouzitaVRozvoze()) {
                 result.add(z);
             }
@@ -130,7 +130,7 @@ public class RozvozController {
 
         for (Zakazka z : r.getZakazky()) {
             z.setPouzitaVRozvoze(false);
-            z.setStav(Zakazka.StavZakazky.DOKONCENA);
+            z.setStav(Zakazka.StavZakazky.NAPLANOVANA);
         }
 
         DataStore.cakajuceRozvozy.remove(r);
