@@ -9,31 +9,26 @@ import sklad.Dodavatel;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.util.EventObject;
 
-/**
- * View pre UC03 – Objednanie materiálu.
- * Zobrazuje sklad, formulár objednávky a históriu objednávok.
- */
 public class ObjednatMaterialView extends JPanel {
 
     private final InventarController controller;
 
-    // --- Sklad ---
     private DefaultTableModel skladTableModel;
     private JTable skladTable;
 
-    // --- Formulár ---
     private JComboBox<String> materialCombo;
     private JSpinner mnozstvoSpinner;
     private JComboBox<String> dodavatelCombo;
     private JLabel cenaLabel;
 
-    // --- Košík ---
     private DefaultTableModel cartTableModel;
     private JLabel totalCartPriceLabel;
 
-    // --- Status ---
     private JLabel statusLabel;
 
     public ObjednatMaterialView(InventarController controller) {
@@ -42,15 +37,14 @@ public class ObjednatMaterialView extends JPanel {
         setBorder(new EmptyBorder(15, 15, 15, 15));
         setBackground(Color.WHITE);
 
-        add(buildNadpis(),      BorderLayout.NORTH);
-        add(buildStred(),       BorderLayout.CENTER);
-        add(buildStatusBar(),   BorderLayout.SOUTH);
+        add(buildNadpis(),    BorderLayout.NORTH);
+        add(buildStred(),     BorderLayout.CENTER);
+        add(buildStatusBar(), BorderLayout.SOUTH);
 
         refreshSklad();
         refreshCart();
     }
 
-    // Stavebne prvky
     private JLabel buildNadpis() {
         JLabel lbl = new JLabel("Objednanie materiálu", SwingConstants.LEFT);
         lbl.setFont(new Font("SansSerif", Font.BOLD, 20));
@@ -60,7 +54,8 @@ public class ObjednatMaterialView extends JPanel {
     }
 
     private JSplitPane buildStred() {
-        JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, buildHornaPolovica(), buildCartPanel());
+        JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                buildHornaPolovica(), buildCartPanel());
         split.setResizeWeight(0.4);
         split.setBorder(null);
         return split;
@@ -87,8 +82,6 @@ public class ObjednatMaterialView extends JPanel {
         skladTable.setRowHeight(24);
         skladTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 12));
         skladTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-        // Klik na riadok → prefilluje formulár
         skladTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) prefillZTabulky();
         });
@@ -113,7 +106,6 @@ public class ObjednatMaterialView extends JPanel {
 
         int row = 0;
 
-        // Materiál
         lc.gridx = 0; lc.gridy = row;
         fc.gridx  = 1; fc.gridy  = row++;
         p.add(new JLabel("Materiál:"), lc);
@@ -121,7 +113,6 @@ public class ObjednatMaterialView extends JPanel {
         materialCombo.addActionListener(e -> aktualizujCenu());
         p.add(materialCombo, fc);
 
-        // Množstvo
         lc.gridy = row; fc.gridy = row++;
         p.add(new JLabel("Množstvo (ks):"), lc);
         mnozstvoSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 9999, 1));
@@ -129,7 +120,6 @@ public class ObjednatMaterialView extends JPanel {
         mnozstvoSpinner.addChangeListener(e -> aktualizujCenu());
         p.add(mnozstvoSpinner, fc);
 
-        // Celková cena
         lc.gridy = row; fc.gridy = row++;
         p.add(new JLabel("Celková cena:"), lc);
         cenaLabel = new JLabel("0.00 EUR");
@@ -137,67 +127,123 @@ public class ObjednatMaterialView extends JPanel {
         cenaLabel.setForeground(new Color(0, 100, 0));
         p.add(cenaLabel, fc);
 
-        // Info limit
-        lc.gridy = row; fc.gridy = row++;
-        lc.gridwidth = 2;
+        lc.gridy = row; lc.gridwidth = 2; fc.gridy = row++;
         JLabel limitInfo = new JLabel("⚠ Objednávky nad " + (int) controller.getLimitObjednavky()
                 + " EUR vyžadujú schválenie manažéra.");
         limitInfo.setFont(new Font("SansSerif", Font.ITALIC, 11));
         limitInfo.setForeground(new Color(150, 80, 0));
         p.add(limitInfo, lc);
 
-        // Tlacidlo pridat do kosika
-        lc.gridy = row; fc.gridy = row++;
-        lc.gridwidth = 2;
-        JButton addToCartBtn = createButton("Pridať do košíka", this::spracujPridanieProduktu);
-        p.add(addToCartBtn, lc);
+        lc.gridy = row; lc.gridwidth = 2; fc.gridy = row++;
+        p.add(createButton("Pridať do košíka", this::spracujPridanieProduktu), lc);
 
-        // Dodavatel
-        lc.gridy = row; fc.gridy = row++;
+        lc.gridy = row; lc.gridwidth = 1; fc.gridy = row++;
         p.add(new JLabel("Dodávateľ:"), lc);
         dodavatelCombo = new JComboBox<>(
-                controller.getDodavatelia()
-                        .stream()
-                        .map(Dodavatel::getNazov)
-                        .toArray(String[]::new)
-        );
+                controller.getDodavatelia().stream()
+                        .map(Dodavatel::getNazov).toArray(String[]::new));
         p.add(dodavatelCombo, fc);
 
-        // Tlačidlo objednat
-        lc.gridy = row;
-        lc.gridwidth = 2;
-        JButton objednatBtn = createButton("✔ Objednať materiál", this::spracujObjednavku);
-        p.add(objednatBtn, lc);
+        lc.gridy = row; lc.gridwidth = 2;
+        p.add(createButton("✔ Objednať materiál", this::spracujObjednavku), lc);
 
         return p;
     }
+
+    // Košík s tlačidlom Zrušiť
 
     private JPanel buildCartPanel() {
         JPanel p = new JPanel(new BorderLayout(0, 6));
         p.setBackground(Color.WHITE);
         p.setBorder(buildTitledBorder("Aktuálna objednávka"));
 
-        String[] cols = {"Materiál", "Množstvo", "Cena (EUR)"};
+        String[] cols = {"Materiál", "Množstvo", "Cena (EUR)", "Akcia"};
         cartTableModel = new DefaultTableModel(cols, 0) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
+            @Override public boolean isCellEditable(int r, int c) { return c == 3; }
+            @Override public Class<?> getColumnClass(int c) {
+                return c == 3 ? JButton.class : Object.class;
+            }
         };
+
         JTable tbl = new JTable(cartTableModel);
-        tbl.setRowHeight(22);
+        tbl.setRowHeight(30);
         tbl.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 12));
+
+        // Stĺpec Akcia
+        tbl.getColumnModel().getColumn(3).setPreferredWidth(80);
+        tbl.getColumnModel().getColumn(3).setMaxWidth(100);
+
+        // Renderer + Editor
+        tbl.getColumnModel().getColumn(3).setCellRenderer(new ZrusitRenderer());
+        tbl.getColumnModel().getColumn(3).setCellEditor(new ZrusitEditor());
 
         p.add(new JScrollPane(tbl), BorderLayout.CENTER);
 
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         bottom.setBackground(Color.WHITE);
-
         totalCartPriceLabel = new JLabel("Celkom: 0.00 EUR");
         totalCartPriceLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
-
         bottom.add(totalCartPriceLabel);
         p.add(bottom, BorderLayout.SOUTH);
 
         return p;
     }
+
+    // Renderer: zobrazí tlačidlo Zrušiť v každom riadku
+
+    private static class ZrusitRenderer implements TableCellRenderer {
+        private final JButton btn = makeBtn();
+
+        @Override
+        public Component getTableCellRendererComponent(
+                JTable table, Object value, boolean isSelected,
+                boolean hasFocus, int row, int column) {
+            return btn;
+        }
+    }
+
+    // Editor: klik na tlačidlo → odoberie riadok z košíka
+
+    private class ZrusitEditor extends AbstractCellEditor implements TableCellEditor {
+        private final JButton btn = makeBtn();
+        private int editingRow;
+
+        ZrusitEditor() {
+            btn.addActionListener(e -> {
+                controller.getKosik().remove(editingRow);
+                fireEditingStopped();
+                refreshCart();
+                setStatus("✗ Položka odstránená z košíka", Color.DARK_GRAY);
+            });
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(
+                JTable table, Object value, boolean isSelected, int row, int column) {
+            this.editingRow = row;
+            return btn;
+        }
+
+        @Override public Object getCellEditorValue() { return null; }
+
+        @Override
+        public boolean isCellEditable(EventObject e) { return true; }
+    }
+
+    /** Vytvorí štýlované tlačidlo Zrušiť pre tabuľku košíka. */
+    private static JButton makeBtn() {
+        JButton b = new JButton("✕ Zrušiť");
+        b.setFont(new Font("SansSerif", Font.BOLD, 11));
+        b.setForeground(Color.WHITE);
+        b.setBackground(new Color(190, 40, 40));
+        b.setOpaque(true);
+        b.setBorderPainted(false);
+        b.setFocusPainted(false);
+        b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        return b;
+    }
+
+    // Ostatné metódy (nezmenené)
 
     private JPanel buildStatusBar() {
         JPanel bar = new JPanel(new BorderLayout());
@@ -209,107 +255,82 @@ public class ObjednatMaterialView extends JPanel {
         return bar;
     }
 
-
     public void refreshSklad() {
-        // Tabuľka skladu
         skladTableModel.setRowCount(0);
         for (Material m : controller.getMaterials()) {
-            skladTableModel.addRow(new Object[]{m.getNazov(), m.getMnozstvo(), m.getLimit(), m.getStav()});
+            skladTableModel.addRow(new Object[]{
+                    m.getNazov(), m.getMnozstvo(), m.getLimit(), m.getStav()});
         }
-
-        // ComboBox materiálov
         String selected = (String) materialCombo.getSelectedItem();
         materialCombo.removeAllItems();
         for (Material m : controller.getMaterials()) {
             materialCombo.addItem(m.getNazov() + "  (" + m.getMnozstvo() + " ks)");
         }
         if (selected != null) materialCombo.setSelectedItem(selected);
-
         aktualizujCenu();
     }
 
     private void refreshCart() {
         cartTableModel.setRowCount(0);
-
-        double totalPrice = 0;
-
+        double total = 0;
         for (KosikPolozka o : controller.getKosik()) {
             cartTableModel.addRow(new Object[]{
                     o.getMaterial().getNazov(),
                     o.getMnozstvo(),
-                    String.format("%.2f", o.getCena())
+                    String.format("%.2f", o.getCena()),
+                    "zrusit"   // placeholder – stĺpec renderuje button
             });
-            totalPrice += o.getCena();
+            total += o.getCena();
         }
-        totalCartPriceLabel.setText(String.format("Celkom: %.2f EUR", totalPrice));
+        totalCartPriceLabel.setText(String.format("Celkom: %.2f EUR", total));
     }
 
     private void aktualizujCenu() {
-        int mnozstvo = (Integer) mnozstvoSpinner.getValue();
-        int materialIndex  = materialCombo.getSelectedIndex();
-        double cena = 0;
-
-        if (materialIndex >= 0) {
-            Material vybrany = controller.getMaterials().get(materialIndex);
-            cena  = controller.vypocitajCenu(mnozstvo, vybrany);
-        }
-
+        int idx = materialCombo.getSelectedIndex();
+        double cena = idx >= 0
+                ? controller.vypocitajCenu((Integer) mnozstvoSpinner.getValue(),
+                controller.getMaterials().get(idx))
+                : 0;
         cenaLabel.setText(String.format("%.2f EUR", cena));
         cenaLabel.setForeground(new Color(0, 100, 0));
     }
 
-    /** Klik na riadok skladu → predvyplní index materiálu vo formulári. */
     private void prefillZTabulky() {
         int row = skladTable.getSelectedRow();
-        if (row >= 0 && row < materialCombo.getItemCount()) {
+        if (row >= 0 && row < materialCombo.getItemCount())
             materialCombo.setSelectedIndex(row);
-        }
     }
 
     private void spracujPridanieProduktu() {
-        int materialIndex  = materialCombo.getSelectedIndex();
-        int mnozstvo       = (Integer) mnozstvoSpinner.getValue();
-
-        VysledokObjednavky vysledok = controller.pridatDoKosika(materialIndex, mnozstvo);
-
-        switch (vysledok.typ) {
-            case USPECH -> {
-                setStatus("✔ Položka pridaná do košíka", new Color(0, 120, 0));
-            }
-            case CHYBA -> {
-                JOptionPane.showMessageDialog(this, vysledok.sprava,
-                        "Chyba", JOptionPane.ERROR_MESSAGE);
-                setStatus("✗ " + vysledok.sprava, Color.RED.darker());
+        VysledokObjednavky v = controller.pridatDoKosika(
+                materialCombo.getSelectedIndex(),
+                (Integer) mnozstvoSpinner.getValue());
+        switch (v.typ) {
+            case USPECH -> setStatus("✔ Položka pridaná do košíka", new Color(0, 120, 0));
+            case CHYBA  -> {
+                JOptionPane.showMessageDialog(this, v.sprava, "Chyba", JOptionPane.ERROR_MESSAGE);
+                setStatus("✗ " + v.sprava, Color.RED.darker());
                 return;
             }
         }
-
         refreshCart();
     }
 
     private void spracujObjednavku() {
-
-        int dodavatelIndex = dodavatelCombo.getSelectedIndex();
-
-        VysledokObjednavky vysledok = controller.objednatKosik(dodavatelIndex);
-
-        switch (vysledok.typ) {
+        VysledokObjednavky v = controller.objednatKosik(dodavatelCombo.getSelectedIndex());
+        switch (v.typ) {
             case USPECH -> {
-                JOptionPane.showMessageDialog(this, vysledok.sprava,
-                        "Hotovo", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, v.sprava, "Hotovo", JOptionPane.INFORMATION_MESSAGE);
                 setStatus("✔ Objednávka vytvorená", new Color(0, 120, 0));
             }
             case CHYBA -> {
-                JOptionPane.showMessageDialog(this, vysledok.sprava,
-                        "Chyba", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, v.sprava, "Chyba", JOptionPane.ERROR_MESSAGE);
                 return;
             }
         }
-
         refreshCart();
         refreshSklad();
     }
-
 
     private void setStatus(String text, Color color) {
         statusLabel.setText(text);
@@ -318,19 +339,18 @@ public class ObjednatMaterialView extends JPanel {
 
     private javax.swing.border.Border buildTitledBorder(String title) {
         return BorderFactory.createCompoundBorder(
-            BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(180, 200, 230)),
-                title,
-                javax.swing.border.TitledBorder.LEFT,
-                javax.swing.border.TitledBorder.TOP,
-                new Font("SansSerif", Font.BOLD, 12),
-                new Color(40, 70, 120)),
-            new EmptyBorder(6, 8, 8, 8));
+                BorderFactory.createTitledBorder(
+                        BorderFactory.createLineBorder(new Color(180, 200, 230)),
+                        title,
+                        javax.swing.border.TitledBorder.LEFT,
+                        javax.swing.border.TitledBorder.TOP,
+                        new Font("SansSerif", Font.BOLD, 12),
+                        new Color(40, 70, 120)),
+                new EmptyBorder(6, 8, 8, 8));
     }
 
     private JButton createButton(String text, Runnable action) {
         JButton btn = new JButton(text);
-
         btn.setFont(new Font("SansSerif", Font.BOLD, 13));
         btn.setBackground(new Color(40, 100, 180));
         btn.setForeground(Color.WHITE);
@@ -338,9 +358,7 @@ public class ObjednatMaterialView extends JPanel {
         btn.setOpaque(true);
         btn.setBorderPainted(false);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
         btn.addActionListener(e -> action.run());
-
         return btn;
     }
 }
