@@ -17,16 +17,16 @@ import sklad.StavObjednavky;
  */
 public class MainView extends JFrame {
 
-    public static final String CARD_UVOD    = "uvod";
-    public static final String CARD_UC01    = "uc01";
-    public static final String CARD_UC02    = "uc02";
-    public static final String CARD_UC03    = "uc03";
-    public static final String CARD_UC04    = "uc04";
+    public static final String CARD_UVOD = "uvod";
+    public static final String CARD_UC01 = "uc01";
+    public static final String CARD_UC02 = "uc02";
+    public static final String CARD_UC03 = "uc03";
+    public static final String CARD_UC04 = "uc04";
     public static final String CARD_ZAKAZKY = "zakazky";
     public static final String CARD_MANAZER = "manazer";
 
-    private final CardLayout cardLayout  = new CardLayout();
-    private final JPanel     contentPane = new JPanel(cardLayout);
+    private final CardLayout cardLayout = new CardLayout();
+    private final JPanel contentPane = new JPanel(cardLayout);
 
     private final InventarView inventarView;
     private final RozvozPanel rozvozPanel;
@@ -68,17 +68,17 @@ public class MainView extends JFrame {
         logo.setBorder(new EmptyBorder(10, 0, 20, 0));
         side.add(logo);
 
-        side.add(buildNavBtn("🏠  Úvod",             CARD_UVOD));
+        side.add(buildNavBtn("🏠  Úvod", CARD_UVOD));
         side.add(Box.createVerticalStrut(4));
         side.add(sectionLabel("  USE CASES"));
-        side.add(buildNavBtn("1  Zákazky",    CARD_UC01));
-        side.add(buildNavBtn("2  Výroba",     CARD_UC02));
-        side.add(buildNavBtn("3  Inventár",   CARD_UC03));
-        side.add(buildNavBtn("4  Rozvoz",     CARD_UC04));
+        side.add(buildNavBtn("1  Obchod", CARD_UC01));
+        side.add(buildNavBtn("2  Výroba", CARD_UC02));
+        side.add(buildNavBtn("3  Inventár", CARD_UC03));
+        side.add(buildNavBtn("4  Rozvoz", CARD_UC04));
         side.add(Box.createVerticalStrut(4));
         side.add(sectionLabel("  OSTATNÉ"));
-        side.add(buildNavBtn("📋  Zoznam zákaziek",  CARD_ZAKAZKY));
-        side.add(buildNavBtn("🔐  Manažér",          CARD_MANAZER));
+        side.add(buildNavBtn("📋  Zoznam zákaziek", CARD_ZAKAZKY));
+        side.add(buildNavBtn("🔐  Manažér", CARD_MANAZER));
         side.add(Box.createVerticalGlue());
 
         JButton quitBtn = new JButton("⏻  Quit");
@@ -198,7 +198,7 @@ public class MainView extends JFrame {
         JPanel uvod = new JPanel(new GridBagLayout());
         uvod.setBackground(Color.WHITE);
 
-// Logo
+        // Logo
         ImageIcon logoIcon = new ImageIcon("assets/woodflow_logo.png");
         Image scaledImage = logoIcon.getImage().getScaledInstance(650, 360, Image.SCALE_SMOOTH);
 
@@ -281,8 +281,8 @@ public class MainView extends JFrame {
         };
         refresh.run();
 
-        JButton refreshBtn   = new JButton("Obnoviť");
-        JButton schvalitBtn  = new JButton("Schváliť");
+        JButton refreshBtn = new JButton("Obnoviť");
+        JButton schvalitBtn = new JButton("Schváliť");
         JButton zamietnutBtn = new JButton("Zamietnuť");
 
         refreshBtn.addActionListener(e -> refresh.run());
@@ -361,8 +361,8 @@ public class MainView extends JFrame {
         };
         refresh.run();
 
-        JButton refreshBtn   = new JButton("Obnoviť");
-        JButton schvalitBtn  = new JButton("Schváliť");
+        JButton refreshBtn = new JButton("Obnoviť");
+        JButton schvalitBtn = new JButton("Schváliť");
         JButton zamietnutBtn = new JButton("Zamietnuť");
 
         refreshBtn.addActionListener(e -> refresh.run());
