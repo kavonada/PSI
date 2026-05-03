@@ -10,6 +10,9 @@ import java.awt.*;
 import model.Rozvoz;
 import javax.swing.table.DefaultTableModel;
 import model.DataStore;
+import sklad.InventarController;
+import sklad.Objednavka;
+import sklad.StavObjednavky;
 /**
  * Hlavné okno aplikácie.
  */
@@ -228,12 +231,33 @@ public class MainView extends JFrame {
         title.setForeground(new Color(40, 70, 120));
         panel.add(title, BorderLayout.NORTH);
 
+        JSplitPane split = new JSplitPane(
+                JSplitPane.HORIZONTAL_SPLIT,
+                buildRozvozSchvaleniePanel(rozvozCtrl),
+                buildObjednavkySchvaleniePanel()
+        );
+        split.setResizeWeight(0.5);
+        split.setBorder(null);
+
+        panel.add(split, BorderLayout.CENTER);
+        return panel;
+    }
+
+    private JPanel buildRozvozSchvaleniePanel(RozvozController rozvozCtrl) {
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(new EmptyBorder(0, 0, 0, 6));
+
+        JLabel lbl = new JLabel("Rozvozy čakajúce na schválenie");
+        lbl.setFont(new Font("SansSerif", Font.BOLD, 14));
+        lbl.setForeground(new Color(40, 70, 120));
+        lbl.setBorder(new EmptyBorder(0, 0, 6, 0));
+        panel.add(lbl, BorderLayout.NORTH);
+
         DefaultTableModel model = new DefaultTableModel(
                 new String[]{"ID", "Vozidlo", "Dátum", "Počet zákaziek", "Stav"}, 0
         ) {
-            @Override public boolean isCellEditable(int r, int c) {
-                return false;
-            }
+            @Override public boolean isCellEditable(int r, int c) { return false; }
         };
 
         JTable table = new JTable(model);
@@ -242,95 +266,139 @@ public class MainView extends JFrame {
 
         Runnable refresh = () -> {
             model.setRowCount(0);
-
             for (Rozvoz r : rozvozCtrl.getCakajuceRozvozy()) {
                 model.addRow(new Object[]{
-                        r.getId(),
-                        r.getVozidlo(),
-                        r.getDatum(),
-                        r.getZakazky().size(),
-                        r.getStav()
+                        r.getId(), r.getVozidlo(), r.getDatum(),
+                        r.getZakazky().size(), r.getStav()
                 });
             }
         };
-
         refresh.run();
 
-        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        btnPanel.setBackground(Color.WHITE);
-
-        JButton refreshBtn = new JButton("Obnoviť");
-        JButton schvalitBtn = new JButton("Schváliť");
+        JButton refreshBtn   = new JButton("Obnoviť");
+        JButton schvalitBtn  = new JButton("Schváliť");
         JButton zamietnutBtn = new JButton("Zamietnuť");
 
         refreshBtn.addActionListener(e -> refresh.run());
 
         schvalitBtn.addActionListener(e -> {
             int row = table.getSelectedRow();
-
-            if (row < 0) {
-                JOptionPane.showMessageDialog(panel, "Vyber rozvoz zo zoznamu.");
-                return;
-            }
-
+            if (row < 0) { JOptionPane.showMessageDialog(panel, "Vyber rozvoz zo zoznamu."); return; }
             int id = (Integer) model.getValueAt(row, 0);
-
-            int confirm = JOptionPane.showConfirmDialog(
-                    panel,
-                    "Naozaj schváliť rozvoz #" + id + "?",
-                    "Potvrdenie",
-                    JOptionPane.YES_NO_OPTION
-            );
-
+            int confirm = JOptionPane.showConfirmDialog(panel,
+                    "Naozaj schváliť rozvoz #" + id + "?", "Potvrdenie", JOptionPane.YES_NO_OPTION);
             if (confirm != JOptionPane.YES_OPTION) return;
-
             RozvozController.VysledokRozvozu vysledok = rozvozCtrl.schvalitRozvoz(id);
-
             JOptionPane.showMessageDialog(panel, vysledok.sprava);
             refresh.run();
             rozvozPanel.refreshAll();
-            if (ZakazkyPanel.instance != null) {
-                ZakazkyPanel.instance.refresh();
-            }
+            if (ZakazkyPanel.instance != null) ZakazkyPanel.instance.refresh();
         });
 
         zamietnutBtn.addActionListener(e -> {
             int row = table.getSelectedRow();
-
-            if (row < 0) {
-                JOptionPane.showMessageDialog(panel, "Vyber rozvoz zo zoznamu.");
-                return;
-            }
-
+            if (row < 0) { JOptionPane.showMessageDialog(panel, "Vyber rozvoz zo zoznamu."); return; }
             int id = (Integer) model.getValueAt(row, 0);
-
-            int confirm = JOptionPane.showConfirmDialog(
-                    panel,
-                    "Naozaj zamietnuť rozvoz #" + id + "?",
-                    "Potvrdenie",
-                    JOptionPane.YES_NO_OPTION
-            );
-
+            int confirm = JOptionPane.showConfirmDialog(panel,
+                    "Naozaj zamietnuť rozvoz #" + id + "?", "Potvrdenie", JOptionPane.YES_NO_OPTION);
             if (confirm != JOptionPane.YES_OPTION) return;
-
             RozvozController.VysledokRozvozu vysledok = rozvozCtrl.zamietnytRozvoz(id);
-
             JOptionPane.showMessageDialog(panel, vysledok.sprava);
             refresh.run();
             rozvozPanel.refreshAll();
-
-            if (ZakazkyPanel.instance != null) {
-                ZakazkyPanel.instance.refresh();
-            }
+            if (ZakazkyPanel.instance != null) ZakazkyPanel.instance.refresh();
         });
 
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        btnPanel.setBackground(Color.WHITE);
         btnPanel.add(refreshBtn);
         btnPanel.add(schvalitBtn);
         btnPanel.add(zamietnutBtn);
 
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
         panel.add(btnPanel, BorderLayout.SOUTH);
+        return panel;
+    }
 
+    private JPanel buildObjednavkySchvaleniePanel() {
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(new EmptyBorder(0, 6, 0, 0));
+
+        JLabel lbl = new JLabel("Objednávky čakajúce na schválenie");
+        lbl.setFont(new Font("SansSerif", Font.BOLD, 14));
+        lbl.setForeground(new Color(40, 70, 120));
+        lbl.setBorder(new EmptyBorder(0, 0, 6, 0));
+        panel.add(lbl, BorderLayout.NORTH);
+
+        DefaultTableModel model = new DefaultTableModel(
+                new String[]{"ID", "Dodávateľ", "Suma (EUR)", "Stav"}, 0
+        ) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+
+        JTable table = new JTable(model);
+        table.setRowHeight(24);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        Runnable refresh = () -> {
+            model.setRowCount(0);
+            for (Objednavka o : InventarController.getObjednavky()) {
+                if (o.getStav() == StavObjednavky.CAKA_NA_SCHVALENIE) {
+                    model.addRow(new Object[]{
+                            o.getId(), o.getDodavatel(),
+                            String.format("%.2f", o.getCelkovaSuma()),
+                            o.getStav()
+                    });
+                }
+            }
+        };
+        refresh.run();
+
+        JButton refreshBtn   = new JButton("Obnoviť");
+        JButton schvalitBtn  = new JButton("Schváliť");
+        JButton zamietnutBtn = new JButton("Zamietnuť");
+
+        refreshBtn.addActionListener(e -> refresh.run());
+
+        schvalitBtn.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row < 0) { JOptionPane.showMessageDialog(panel, "Vyber objednávku."); return; }
+            int id = (Integer) model.getValueAt(row, 0);
+            int confirm = JOptionPane.showConfirmDialog(panel,
+                    "Schváliť objednávku #" + id + "?", "Potvrdenie", JOptionPane.YES_NO_OPTION);
+            if (confirm != JOptionPane.YES_OPTION) return;
+            InventarController.getObjednavky().stream()
+                    .filter(o -> o.getId() == id).findFirst()
+                    .ifPresent(o -> o.setStav(StavObjednavky.VYTVORENA));
+            JOptionPane.showMessageDialog(panel, "✔ Objednávka #" + id + " bola schválená.");
+            refresh.run();
+            inventarView.refreshAll();
+        });
+
+        zamietnutBtn.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row < 0) { JOptionPane.showMessageDialog(panel, "Vyber objednávku."); return; }
+            int id = (Integer) model.getValueAt(row, 0);
+            int confirm = JOptionPane.showConfirmDialog(panel,
+                    "Zamietnuť objednávku #" + id + "?", "Potvrdenie", JOptionPane.YES_NO_OPTION);
+            if (confirm != JOptionPane.YES_OPTION) return;
+            InventarController.getObjednavky().stream()
+                    .filter(o -> o.getId() == id).findFirst()
+                    .ifPresent(o -> o.setStav(StavObjednavky.ZAMIETNUTA));
+            JOptionPane.showMessageDialog(panel, "✗ Objednávka #" + id + " bola zamietnutá.");
+            refresh.run();
+            inventarView.refreshAll();
+        });
+
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        btnPanel.setBackground(Color.WHITE);
+        btnPanel.add(refreshBtn);
+        btnPanel.add(schvalitBtn);
+        btnPanel.add(zamietnutBtn);
+
+        panel.add(new JScrollPane(table), BorderLayout.CENTER);
+        panel.add(btnPanel, BorderLayout.SOUTH);
         return panel;
     }
 

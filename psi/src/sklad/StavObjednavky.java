@@ -4,7 +4,8 @@ public enum StavObjednavky {
     VYTVORENA("Vytvorena"),
     CAKA_NA_SCHVALENIE("Caka na schvalenie"),
     DORUCENA("Dorucena"),
-    VYBAVENA("Vybavena");
+    VYBAVENA("Vybavena"),
+    ZAMIETNUTA("Zamietnuta");
 
     private final String popis;
 

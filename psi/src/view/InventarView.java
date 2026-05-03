@@ -276,7 +276,7 @@ public class InventarView extends JPanel {
             return;
         }
         StavObjednavky stav = InventarController.getObjednavky().get(row).getStav();
-        dorucitBtn.setEnabled(stav == StavObjednavky.VYTVORENA || stav == StavObjednavky.CAKA_NA_SCHVALENIE);
+        dorucitBtn.setEnabled(stav == StavObjednavky.VYTVORENA);
         vybalitBtn.setEnabled(stav == StavObjednavky.DORUCENA);
     }
 
