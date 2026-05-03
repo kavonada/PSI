@@ -25,13 +25,15 @@ public class Zakazka {
     private List<VyrobnaUloha> vyrobneUlohy;
 
     private StavZakazky stav;
+    private boolean pouzitaVRozvoze = false;
 
     public enum StavZakazky {
         VYTVORENA,
         NAPLANOVANA,
         CIASTOCNE_NAPLANOVANA,
         DOKONCENA,
-        ZRUSENA
+        ZRUSENA,
+        PRIPRAVENA_NA_ROZVOZ
     }
 
     public Zakazka(String nazov, String popis,
@@ -144,6 +146,14 @@ public class Zakazka {
     public List<VyrobnaUloha> getVyrobneUlohy() { return vyrobneUlohy; }
 
     public void setVyrobneUlohy(List<VyrobnaUloha> vyrobneUlohy) { this.vyrobneUlohy = vyrobneUlohy; }
+
+    public boolean isPouzitaVRozvoze() {
+        return pouzitaVRozvoze;
+    }
+
+    public void setPouzitaVRozvoze(boolean pouzitaVRozvoze) {
+        this.pouzitaVRozvoze = pouzitaVRozvoze;
+    }
 
     @Override
     public String toString() {

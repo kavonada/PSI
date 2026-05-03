@@ -56,7 +56,7 @@ public class ZakazkyPanel extends JPanel {
         model.setRowCount(0);
 
         for (Zakazka z : DataStore.zakazky) {
-            if (z.getStav() != Zakazka.StavZakazky.DOKONCENA && z.getStav() != Zakazka.StavZakazky.ZRUSENA) {
+            if (z.getStav() != Zakazka.StavZakazky.ZRUSENA) {
                 model.addRow(new Object[]{
                         z.getId(),
                         z.getNazov(),
