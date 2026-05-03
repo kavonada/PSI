@@ -1,9 +1,6 @@
 package controller;
 
-import model.use_case_3.Dodavatel;
-import model.use_case_3.KosikPolozka;
-import model.use_case_3.Material;
-import model.use_case_3.Objednavka;
+import model.use_case_3.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,22 +57,22 @@ public class InventarController {
             return VysledokObjednavky.chyba("Košík je prázdny.");
         }
 
-        String supplier = getDodavatel(supplierIndex);
-        Objednavka order = new Objednavka(new ArrayList<>(kosik), supplier);
+        String dodavatel = getDodavatel(supplierIndex);
+        Objednavka objednavka = new Objednavka(new ArrayList<>(kosik), dodavatel);
 
-        objednavky.add(order);
+        objednavky.add(objednavka);
         kosik.clear();
 
         return VysledokObjednavky.uspech(String.format(
                 "✔ Objednávka č.%d bola úspešne vytvorená so stavom '%s'\n" +
                         "Dodávateľ: %s\n" +
                         "Celková cena: %.2f EUR",
-                order.getId(), order.getStav(), order.getDodavatel(), order.getCelkovaSuma()
+                objednavka.getId(), objednavka.getStav(), objednavka.getDodavatel(), objednavka.getCelkovaSuma()
         ));
     }
 
     public boolean vybalitNaSklad(Objednavka objednavka) {
-        if (!"Dorucena".equals(objednavka.getStav())) return false;
+        if (objednavka.getStav() != StavObjednavky.DORUCENA) return false;
 
         for (KosikPolozka p : objednavka.getOrderItems()) {
             p.getMaterial().zmenitMnozstvo(p.getMnozstvo());

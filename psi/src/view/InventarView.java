@@ -3,6 +3,7 @@ package view;
 import controller.InventarController;
 import model.use_case_3.Material;
 import model.use_case_3.Objednavka;
+import model.use_case_3.StavObjednavky;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -274,9 +275,9 @@ public class InventarView extends JPanel {
             vybalitBtn.setEnabled(false);
             return;
         }
-        String stav = InventarController.getObjednavky().get(row).getStav();
-        dorucitBtn.setEnabled("Vytvorena".equals(stav) || "Caka na schvalenie".equals(stav));
-        vybalitBtn.setEnabled("Dorucena".equals(stav));
+        StavObjednavky stav = InventarController.getObjednavky().get(row).getStav();
+        dorucitBtn.setEnabled(stav == StavObjednavky.VYTVORENA || stav == StavObjednavky.CAKA_NA_SCHVALENIE);
+        vybalitBtn.setEnabled(stav == StavObjednavky.DORUCENA);
     }
 
     public void refreshAll() {
