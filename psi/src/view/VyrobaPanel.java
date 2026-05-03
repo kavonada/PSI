@@ -6,7 +6,7 @@ import vyroba.Stroj;
 import vyroba.VyrobaController;
 import ulozisko.DataStore;
 import sklad.PolozkaMaterialu;
-import model.Zakazka;
+import obchod.Zakazka;
 import sklad.Material;
 import vyroba.VyrobnaUloha;
 

@@ -1,7 +1,7 @@
 package rozvoz;
 
 import ulozisko.DataStore;
-import model.Zakazka;
+import obchod.Zakazka;
 
 import java.util.ArrayList;
 import java.util.List;

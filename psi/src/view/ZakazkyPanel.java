@@ -1,7 +1,7 @@
 package view;
 
 import ulozisko.DataStore;
-import model.Zakazka;
+import obchod.Zakazka;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;

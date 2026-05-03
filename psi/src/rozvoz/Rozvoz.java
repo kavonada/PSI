@@ -1,6 +1,6 @@
 package rozvoz;
 
-import model.Zakazka;
+import obchod.Zakazka;
 
 import java.util.ArrayList;
 import java.util.List;
