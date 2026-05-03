@@ -2,6 +2,7 @@ package obchod;
 
 import ulozisko.DataStore;
 import sklad.Material;
+import vyroba.VyrobnaUloha;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -98,4 +99,36 @@ public class ZakazkaController {
 
         return nedostatkove;
     }
+
+    public void zrusZakazku(Zakazka zakazka) {
+        if (zakazka == null) {
+            return;
+        }
+
+        if (zakazka.getStav() == Zakazka.StavZakazky.VYTVORENA) {
+            DataStore.zakazky.remove(zakazka);
+            return;
+        }
+
+        if (zakazka.getStav() == Zakazka.StavZakazky.NAPLANOVANA
+                || zakazka.getStav() == Zakazka.StavZakazky.CIASTOCNE_NAPLANOVANA) {
+
+            for (VyrobnaUloha uloha : zakazka.getVyrobneUlohy()) {
+                if (!uloha.isCakaNaMaterial()
+                        && uloha.getStav() != VyrobnaUloha.StavUlohy.VO_VYROBE
+                        && uloha.getStav() != VyrobnaUloha.StavUlohy.VYROBENA) {
+
+                    uloha.getPolozkaMaterialu().zrusRezervaciu(
+                            uloha.getPolozkaMaterialu().getPozadovaneMnozstvo()
+                    );
+                }
+            }
+
+            zakazka.setStav(Zakazka.StavZakazky.ZRUSENA);
+            return;
+        }
+
+        zakazka.setStav(Zakazka.StavZakazky.ZRUSENA);
+    }
 }
+

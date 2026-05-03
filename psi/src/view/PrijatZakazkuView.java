@@ -289,7 +289,7 @@ public class PrijatZakazkuView extends JPanel {
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttons.setBackground(Color.WHITE);
 
-        JButton zrusitButton = createSecondaryButton("Zrušiť", this::zrusFormular);
+        JButton zrusitButton = createSecondaryButton("Zrušiť", this::potvrdZrusenieFormulara);
         JButton potvrditButton = createButton("Potvrdiť", this::ulozZakazku);
 
         buttons.add(zrusitButton);
@@ -530,6 +530,20 @@ public class PrijatZakazkuView extends JPanel {
 
         materialStatusLabel.setText("<html>&nbsp;</html>");
         setStatus("Formulár bol vymazaný.", new Color(80, 80, 80));
+    }
+
+    private void potvrdZrusenieFormulara() {
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Naozaj chceš zrušiť vytvorenie zákazky?",
+                "Potvrdenie",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            zrusFormular();
+        }
     }
 
 
