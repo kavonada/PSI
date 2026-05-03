@@ -1,4 +1,4 @@
-package model;
+package obchod;
 
 public class Zakaznik {
 

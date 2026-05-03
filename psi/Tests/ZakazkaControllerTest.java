@@ -1,5 +1,5 @@
-import controller.ZakazkaController;
-import model.Zakazka;
+import obchod.ZakazkaController;
+import obchod.Zakazka;
 import sklad.Material;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

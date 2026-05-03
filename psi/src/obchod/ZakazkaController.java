@@ -1,9 +1,7 @@
-package controller;
+package obchod;
 
-import model.Adresa;
-import ulozisko.DataStore;
 import model.Zakazka;
-import model.Zakaznik;
+import ulozisko.DataStore;
 import sklad.Material;
 
 import java.time.LocalDate;

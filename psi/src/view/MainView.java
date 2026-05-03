@@ -2,7 +2,7 @@ package view;
 
 import sklad.InventarController;
 import rozvoz.RozvozController;
-import controller.ZakazkaController;
+import obchod.ZakazkaController;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

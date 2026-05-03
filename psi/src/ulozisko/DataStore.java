@@ -1,10 +1,10 @@
 package ulozisko;
 
-import model.Adresa;
+import obchod.Adresa;
 import rozvoz.Vozidlo;
 import vyroba.PoziadavkaNaMaterial;
 import model.Zakazka;
-import model.Zakaznik;
+import obchod.Zakaznik;
 import rozvoz.Rozvoz;
 import vyroba.Pracovnik;
 import vyroba.Stroj;

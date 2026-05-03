@@ -1,6 +1,6 @@
 package view;
 
-import controller.ZakazkaController;
+import obchod.ZakazkaController;
 import sklad.InventarController;
 import model.Zakazka;
 import sklad.Material;

@@ -1,8 +1,8 @@
 import vyroba.VyrobaController;
 import sklad.PolozkaMaterialu;
-import model.Zakazka;
-import model.Zakaznik;
-import model.Adresa;
+import obchod.Zakazka;
+import obchod.Zakaznik;
+import obchod.Adresa;
 import vyroba.Pracovnik;
 import vyroba.Stroj;
 import vyroba.VyrobnaUloha;

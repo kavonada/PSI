@@ -1,7 +1,7 @@
 package vyroba;
 
 import ulozisko.DataStore;
-import model.Zakazka;
+import obchod.Zakazka;
 import sklad.Material;
 
 public class VyrobaController {

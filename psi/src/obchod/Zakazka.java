@@ -1,4 +1,4 @@
-package model;
+package obchod;
 
 import vyroba.VyrobnaUloha;
 import sklad.Material;

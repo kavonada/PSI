@@ -1,9 +1,9 @@
 import rozvoz.RozvozController;
 import rozvoz.RozvozController.VysledokRozvozu;
-import model.Adresa;
+import obchod.Adresa;
 import ulozisko.DataStore;
-import model.Zakazka;
-import model.Zakaznik;
+import obchod.Zakazka;
+import obchod.Zakaznik;
 import sklad.Material;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

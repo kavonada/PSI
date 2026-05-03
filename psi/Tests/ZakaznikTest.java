@@ -1,4 +1,4 @@
-import model.Zakaznik;
+import obchod.Zakaznik;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

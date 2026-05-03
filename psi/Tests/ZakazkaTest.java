@@ -1,6 +1,6 @@
-import model.Adresa;
-import model.Zakazka;
-import model.Zakaznik;
+import obchod.Adresa;
+import obchod.Zakazka;
+import obchod.Zakaznik;
 import vyroba.VyrobnaUloha;
 import sklad.Material;
 import org.junit.jupiter.api.BeforeEach;
