@@ -80,7 +80,7 @@ public class DataStore {
                 new Adresa("Kvetná", "12", "Bratislava", "82101"),
                 320, LocalDate.now().plusDays(3), new ArrayList<>());
 
-        rozvozZakazka1.setStav(Zakazka.StavZakazky.NAPLANOVANA);
+        rozvozZakazka1.setStav(Zakazka.StavZakazky.DOKONCENA);
         zakazky.add(rozvozZakazka1);
 
         Zakazka rozvozZakazka2 = new Zakazka("Polica", "Hotová nástenná polica",
@@ -88,7 +88,7 @@ public class DataStore {
                 new Adresa("Lesná", "8", "Trnava", "91701"),
                 90, LocalDate.now().plusDays(4), new ArrayList<>());
 
-        rozvozZakazka2.setStav(Zakazka.StavZakazky.NAPLANOVANA);
+        rozvozZakazka2.setStav(Zakazka.StavZakazky.DOKONCENA);
         zakazky.add(rozvozZakazka2);
     }
 }
