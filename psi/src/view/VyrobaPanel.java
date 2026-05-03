@@ -1,12 +1,14 @@
 package view;
 
 import sklad.InventarController;
-import controller.VyrobaController;
-import model.DataStore;
-import model.use_case_2.PolozkaMaterialu;
+import vyroba.Pracovnik;
+import vyroba.Stroj;
+import vyroba.VyrobaController;
+import ulozisko.DataStore;
+import sklad.PolozkaMaterialu;
 import model.Zakazka;
-import model.use_case_2.*;
 import sklad.Material;
+import vyroba.VyrobnaUloha;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;

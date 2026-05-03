@@ -1,4 +1,4 @@
-package model;
+package rozvoz;
 
 public class Vozidlo {
 

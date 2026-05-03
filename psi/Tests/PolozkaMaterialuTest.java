@@ -1,4 +1,4 @@
-import model.use_case_2.PolozkaMaterialu;
+import sklad.PolozkaMaterialu;
 import sklad.Material;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;

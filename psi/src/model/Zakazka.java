@@ -1,6 +1,6 @@
 package model;
 
-import model.use_case_2.VyrobnaUloha;
+import vyroba.VyrobnaUloha;
 import sklad.Material;
 
 import java.time.LocalDate;

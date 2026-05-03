@@ -1,4 +1,6 @@
-package model.use_case_2;
+package vyroba;
+
+import sklad.PolozkaMaterialu;
 
 public class VyrobnaUloha {
     private final String nazov;

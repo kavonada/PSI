@@ -1,11 +1,7 @@
-package controller;
+package vyroba;
 
-import model.DataStore;
-import model.PoziadavkaNaMaterial;
+import ulozisko.DataStore;
 import model.Zakazka;
-import model.use_case_2.Pracovnik;
-import model.use_case_2.Stroj;
-import model.use_case_2.VyrobnaUloha;
 import sklad.Material;
 
 public class VyrobaController {

@@ -1,16 +1,15 @@
 package view;
 
 import sklad.InventarController;
-import controller.RozvozController;
+import rozvoz.RozvozController;
 import controller.ZakazkaController;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import model.Rozvoz;
+import rozvoz.Rozvoz;
 import javax.swing.table.DefaultTableModel;
-import model.DataStore;
-import sklad.InventarController;
+import ulozisko.DataStore;
 import sklad.Objednavka;
 import sklad.StavObjednavky;
 /**

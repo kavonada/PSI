@@ -1,12 +1,10 @@
-package controller;
+package rozvoz;
 
-import model.DataStore;
-import model.Rozvoz;
+import ulozisko.DataStore;
 import model.Zakazka;
 
 import java.util.ArrayList;
 import java.util.List;
-import model.Vozidlo;
 
 /**
  * Controller pre UC04 – Plánovanie rozvozu.

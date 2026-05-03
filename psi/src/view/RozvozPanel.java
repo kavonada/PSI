@@ -1,7 +1,7 @@
 package view;
 
-import controller.RozvozController;
-import controller.RozvozController.VysledokRozvozu;
+import rozvoz.RozvozController;
+import rozvoz.RozvozController.VysledokRozvozu;
 import model.Zakazka;
 
 import javax.swing.*;
@@ -10,8 +10,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import model.Vozidlo;
-import model.Rozvoz;
+import rozvoz.Vozidlo;
+import rozvoz.Rozvoz;
 
 /**
  * View pre UC04 – Plánovanie rozvozu.

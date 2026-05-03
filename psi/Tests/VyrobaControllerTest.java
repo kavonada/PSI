@@ -1,11 +1,11 @@
-import controller.VyrobaController;
-import model.use_case_2.PolozkaMaterialu;
+import vyroba.VyrobaController;
+import sklad.PolozkaMaterialu;
 import model.Zakazka;
 import model.Zakaznik;
 import model.Adresa;
-import model.use_case_2.Pracovnik;
-import model.use_case_2.Stroj;
-import model.use_case_2.VyrobnaUloha;
+import vyroba.Pracovnik;
+import vyroba.Stroj;
+import vyroba.VyrobnaUloha;
 import sklad.Material;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

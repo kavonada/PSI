@@ -1,4 +1,4 @@
-package model;
+package vyroba;
 
 import sklad.Material;
 

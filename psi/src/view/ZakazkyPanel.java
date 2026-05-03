@@ -1,6 +1,6 @@
 package view;
 
-import model.DataStore;
+import ulozisko.DataStore;
 import model.Zakazka;
 
 import javax.swing.*;

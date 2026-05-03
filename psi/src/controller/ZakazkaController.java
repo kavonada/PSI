@@ -1,7 +1,7 @@
 package controller;
 
 import model.Adresa;
-import model.DataStore;
+import ulozisko.DataStore;
 import model.Zakazka;
 import model.Zakaznik;
 import sklad.Material;

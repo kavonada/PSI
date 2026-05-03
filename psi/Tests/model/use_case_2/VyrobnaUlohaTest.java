@@ -2,6 +2,11 @@ package model.use_case_2;
 
 import sklad.Material;
 import org.junit.jupiter.api.Test;
+import sklad.PolozkaMaterialu;
+import vyroba.Pracovnik;
+import vyroba.Stroj;
+import vyroba.VyrobnaUloha;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class VyrobnaUlohaTest {

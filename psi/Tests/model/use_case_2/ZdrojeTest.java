@@ -1,6 +1,9 @@
 package model.use_case_2;
 
 import org.junit.jupiter.api.Test;
+import vyroba.Pracovnik;
+import vyroba.Stroj;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ZdrojeTest {

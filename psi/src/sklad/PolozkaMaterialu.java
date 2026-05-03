@@ -1,6 +1,4 @@
-package model.use_case_2;
-
-import sklad.Material;
+package sklad;
 
 public class PolozkaMaterialu {
 

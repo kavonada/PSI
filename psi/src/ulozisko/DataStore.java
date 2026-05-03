@@ -1,7 +1,13 @@
-package model;
+package ulozisko;
 
-import model.use_case_2.Pracovnik;
-import model.use_case_2.Stroj;
+import model.Adresa;
+import rozvoz.Vozidlo;
+import vyroba.PoziadavkaNaMaterial;
+import model.Zakazka;
+import model.Zakaznik;
+import rozvoz.Rozvoz;
+import vyroba.Pracovnik;
+import vyroba.Stroj;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

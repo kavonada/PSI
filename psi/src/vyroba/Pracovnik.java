@@ -1,4 +1,4 @@
-package model.use_case_2;
+package vyroba;
 
 public class Pracovnik {
 
