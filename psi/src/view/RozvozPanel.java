@@ -2,7 +2,6 @@ package view;
 
 import controller.RozvozController;
 import controller.RozvozController.VysledokRozvozu;
-import model.Rozvoz;
 import model.Zakazka;
 
 import javax.swing.*;
@@ -11,6 +10,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import model.Vozidlo;
+import model.Rozvoz;
 
 /**
  * View pre UC04 – Plánovanie rozvozu.
@@ -25,8 +26,8 @@ public class RozvozPanel extends JPanel {
     private final RozvozController controller;
 
     // ── Tab 1 – Nový rozvoz ───────────────────────────────────────────────────
-    private JTextField vozidloField;
-    private JSpinner   kapacitaSpinner;
+    private JComboBox<Vozidlo> vozidloCombo;
+    private JLabel kapacitaLabel;
     private JTextField datumField;
 
     // Tabuľka dostupných zákaziek (ľavá strana)
@@ -36,12 +37,6 @@ public class RozvozPanel extends JPanel {
     // Tabuľka vybraných zákaziek (pravá strana – poradie zastávok)
     private DefaultTableModel vybranteModel;
     private JTable             vybranteTable;
-
-    // ── Tab 2 – Čakajúce rozvozy ──────────────────────────────────────────────
-    private DefaultTableModel cakajuceModel;
-    private JTable             cakajuceTable;
-
-    // ── Tab 3 – Schválené rozvozy ─────────────────────────────────────────────
     private DefaultTableModel schvaleneModel;
 
     // ── Statusbar ─────────────────────────────────────────────────────────────
@@ -60,8 +55,7 @@ public class RozvozPanel extends JPanel {
         add(buildStatusBar(), BorderLayout.SOUTH);
 
         tabs.addTab("🚚  Nový rozvoz",   buildNovyRozvozTab());
-        tabs.addTab("⏳  Čakajúce",       buildCakajuceTab());
-        tabs.addTab("✔  Schválené",       buildSchvaleneTab());
+        tabs.addTab("✔  Schválené rozvozy", buildSchvaleneTab());
 
         // Pri prepnutí na kartu obnovíme dáta
         tabs.addChangeListener(e -> refreshAktualnaKarta());
@@ -100,11 +94,16 @@ public class RozvozPanel extends JPanel {
         root.setBackground(Color.WHITE);
         root.setBorder(new EmptyBorder(10, 0, 0, 0));
 
-        // Horná časť: formulár + tabuľky vedľa seba
-        JPanel horna = new JPanel(new GridLayout(1, 2, 12, 0));
+        JPanel horna = new JPanel(new BorderLayout(12, 0));
         horna.setBackground(Color.WHITE);
-        horna.add(buildFormularPanel());
-        horna.add(buildVyberZakaziekPanel());
+
+        JPanel formularPanel = buildFormularPanel();
+        formularPanel.setPreferredSize(new Dimension(330, 0));
+
+        JPanel vyberPanel = buildVyberZakaziekPanel();
+
+        horna.add(formularPanel, BorderLayout.WEST);
+        horna.add(vyberPanel, BorderLayout.CENTER);
 
         root.add(horna, BorderLayout.CENTER);
         root.add(buildOdoslatPanel(), BorderLayout.SOUTH);
@@ -126,14 +125,19 @@ public class RozvozPanel extends JPanel {
         // Vozidlo
         lc.gridy = row; fc.gridy = row++;
         p.add(new JLabel("Vozidlo:"), lc);
-        vozidloField = new JTextField(15);
-        p.add(vozidloField, fc);
+        vozidloCombo = new JComboBox<>();
+        for (Vozidlo v : controller.getVozidla()) {
+            vozidloCombo.addItem(v);
+        }
+        p.add(vozidloCombo, fc);
 
-        // Kapacita
         lc.gridy = row; fc.gridy = row++;
         p.add(new JLabel("Kapacita vozidla:"), lc);
-        kapacitaSpinner = new JSpinner(new SpinnerNumberModel(5, 1, 100, 1));
-        p.add(kapacitaSpinner, fc);
+        kapacitaLabel = new JLabel();
+        p.add(kapacitaLabel, fc);
+
+        vozidloCombo.addActionListener(e -> aktualizujKapacituLabel());
+        aktualizujKapacituLabel();
 
         // Dátum
         lc.gridy = row; fc.gridy = row++;
@@ -152,7 +156,51 @@ public class RozvozPanel extends JPanel {
         return p;
     }
 
-    /** Ľavá tabuľka (dostupné) + tlačidlá Pridať/Odstrániť + pravá tabuľka (vybrané) */
+    private JPanel buildSchvaleneTab() {
+        JPanel p = new JPanel(new BorderLayout());
+        p.setBackground(Color.WHITE);
+        p.setBorder(new EmptyBorder(10, 0, 0, 0));
+
+        schvaleneModel = new DefaultTableModel(
+                new String[]{"ID", "Vozidlo", "Dátum", "Počet zákaziek", "Stav"}, 0
+        ) {
+            @Override public boolean isCellEditable(int r, int c) {
+                return false;
+            }
+        };
+
+        JTable tbl = new JTable(schvaleneModel);
+        styleTable(tbl);
+
+        p.add(new JScrollPane(tbl), BorderLayout.CENTER);
+        return p;
+    }
+
+    private void refreshSchvalene() {
+        if (schvaleneModel == null) return;
+
+        schvaleneModel.setRowCount(0);
+
+        for (Rozvoz r : controller.getSchvaleneRozvozy()) {
+            schvaleneModel.addRow(new Object[]{
+                    r.getId(),
+                    r.getVozidlo(),
+                    r.getDatum(),
+                    r.getZakazky().size(),
+                    r.getStav()
+            });
+        }
+    }
+
+    private void aktualizujKapacituLabel() {
+        Vozidlo vozidlo = (Vozidlo) vozidloCombo.getSelectedItem();
+        if (vozidlo == null) {
+            kapacitaLabel.setText("-");
+        } else {
+            kapacitaLabel.setText(String.valueOf(vozidlo.getKapacita()));
+        }
+    }
+
     private JPanel buildVyberZakaziekPanel() {
         JPanel p = new JPanel(new BorderLayout(6, 6));
         p.setBackground(Color.WHITE);
@@ -170,51 +218,58 @@ public class RozvozPanel extends JPanel {
         leftP.add(new JLabel("Dostupné zákazky:", SwingConstants.CENTER), BorderLayout.NORTH);
         leftP.add(new JScrollPane(dostupneTable), BorderLayout.CENTER);
 
-        // ── Tlačidlá uprostred ──
-        JPanel btnPanel = new JPanel(new GridBagLayout());
-        btnPanel.setBackground(Color.WHITE);
-        GridBagConstraints bc = new GridBagConstraints();
-        bc.gridx = 0; bc.gridy = GridBagConstraints.RELATIVE;
-        bc.fill = GridBagConstraints.HORIZONTAL;
-        bc.insets = new Insets(4, 2, 4, 2);
-
-        JButton pridatBtn   = createSmallBtn("→ Pridať",    this::pridatZakazku);
-        JButton odobratBtn  = createSmallBtn("← Odstrániť", this::odobratZakazku);
-        JButton horeBtn     = createSmallBtn("▲ Hore",      this::posunHore);
-        JButton doleBtn     = createSmallBtn("▼ Dole",      this::posunDole);
-
-        btnPanel.add(pridatBtn,  bc);
-        btnPanel.add(odobratBtn, bc);
-        bc.insets = new Insets(12, 2, 4, 2);
-        btnPanel.add(horeBtn,    bc);
-        bc.insets = new Insets(4, 2, 4, 2);
-        btnPanel.add(doleBtn,    bc);
-
         // ── Vybrané ──
         vybranteModel = new DefaultTableModel(new String[]{"#", "ID", "Zákazka"}, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
         vybranteTable = new JTable(vybranteModel);
         styleTable(vybranteTable);
-        vybranteTable.getColumnModel().getColumn(0).setMaxWidth(30);
+        vybranteTable.getColumnModel().getColumn(0).setMaxWidth(35);
+        vybranteTable.getColumnModel().getColumn(1).setMaxWidth(50);
 
         JPanel rightP = new JPanel(new BorderLayout(0, 4));
         rightP.setBackground(Color.WHITE);
         rightP.add(new JLabel("Vybrané zastávky (poradie):", SwingConstants.CENTER), BorderLayout.NORTH);
         rightP.add(new JScrollPane(vybranteTable), BorderLayout.CENTER);
 
-        // Poskladáme trojicu
-        JPanel trio = new JPanel(new GridBagLayout());
-        trio.setBackground(Color.WHITE);
+        // ── Tabuľky vedľa seba v pomere 2:1 ──
+        JPanel tablesPanel = new JPanel(new GridBagLayout());
+        tablesPanel.setBackground(Color.WHITE);
+
         GridBagConstraints tc = new GridBagConstraints();
+        tc.gridy = 0;
         tc.fill = GridBagConstraints.BOTH;
         tc.weighty = 1.0;
 
-        tc.gridx = 0; tc.weightx = 1.0; trio.add(leftP,   tc);
-        tc.gridx = 1; tc.weightx = 0.0; trio.add(btnPanel, tc);
-        tc.gridx = 2; tc.weightx = 1.0; trio.add(rightP,  tc);
+        // Dostupné zákazky = 2 diely
+        tc.gridx = 0;
+        tc.weightx = 7.0;
+        tc.insets = new Insets(0, 0, 0, 10);
+        tablesPanel.add(leftP, tc);
 
-        p.add(trio, BorderLayout.CENTER);
+        // Vybrané zákazky = 1 diel
+        tc.gridx = 1;
+        tc.weightx = 1.0;
+        tc.insets = new Insets(0, 0, 0, 0);
+        tablesPanel.add(rightP, tc);
+
+        // ── Tlačidlá pod tabuľkami ──
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 4));
+        btnPanel.setBackground(Color.WHITE);
+
+        JButton pridatBtn   = createSmallBtn("→ Pridať",    this::pridatZakazku);
+        JButton odobratBtn  = createSmallBtn("← Odstrániť", this::odobratZakazku);
+        JButton horeBtn     = createSmallBtn("▲ Hore",      this::posunHore);
+        JButton doleBtn     = createSmallBtn("▼ Dole",      this::posunDole);
+
+        btnPanel.add(pridatBtn);
+        btnPanel.add(odobratBtn);
+        btnPanel.add(horeBtn);
+        btnPanel.add(doleBtn);
+
+        p.add(tablesPanel, BorderLayout.CENTER);
+        p.add(btnPanel, BorderLayout.SOUTH);
+
         return p;
     }
 
@@ -222,60 +277,10 @@ public class RozvozPanel extends JPanel {
     private JPanel buildOdoslatPanel() {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         p.setBackground(Color.WHITE);
-        p.add(createBtn("🚚  Odoslať na schválenie", this::odoslatRozvoz));
+        p.add(createBtn("Odoslať na schválenie", this::odoslatRozvoz));
         return p;
     }
 
-    // ═════════════════════════════════════════════════════════════════════════
-    //  TAB 2 – ČAKAJÚCE ROZVOZY (schvaľovanie manažéra)
-    // ═════════════════════════════════════════════════════════════════════════
-
-    private JPanel buildCakajuceTab() {
-        JPanel p = new JPanel(new BorderLayout(0, 8));
-        p.setBackground(Color.WHITE);
-        p.setBorder(new EmptyBorder(10, 0, 0, 0));
-
-        cakajuceModel = new DefaultTableModel(
-                new String[]{"ID", "Vozidlo", "Dátum", "Počet zákaziek", "Stav"}, 0) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
-        };
-        cakajuceTable = new JTable(cakajuceModel);
-        styleTable(cakajuceTable);
-
-        JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        btnRow.setBackground(Color.WHITE);
-        btnRow.add(createBtn("✔  Schváliť",   this::schvalit));
-        btnRow.add(createBtn("✗  Zamietnuť", this::zamietnyt));
-
-        JLabel hint = new JLabel("  Vyber riadok a klikni na akciu.");
-        hint.setFont(new Font("SansSerif", Font.ITALIC, 11));
-        hint.setForeground(Color.GRAY);
-        btnRow.add(hint);
-
-        p.add(new JScrollPane(cakajuceTable), BorderLayout.CENTER);
-        p.add(btnRow, BorderLayout.SOUTH);
-        return p;
-    }
-
-    // ═════════════════════════════════════════════════════════════════════════
-    //  TAB 3 – SCHVÁLENÉ ROZVOZY
-    // ═════════════════════════════════════════════════════════════════════════
-
-    private JPanel buildSchvaleneTab() {
-        JPanel p = new JPanel(new BorderLayout());
-        p.setBackground(Color.WHITE);
-        p.setBorder(new EmptyBorder(10, 0, 0, 0));
-
-        schvaleneModel = new DefaultTableModel(
-                new String[]{"ID", "Vozidlo", "Dátum", "Počet zákaziek", "Stav"}, 0) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
-        };
-        JTable tbl = new JTable(schvaleneModel);
-        styleTable(tbl);
-
-        p.add(new JScrollPane(tbl), BorderLayout.CENTER);
-        return p;
-    }
 
     // ═════════════════════════════════════════════════════════════════════════
     //  AKCIE (volané z tlačidiel)
@@ -286,7 +291,13 @@ public class RozvozPanel extends JPanel {
         int row = dostupneTable.getSelectedRow();
         if (row < 0) { setStatus("Vyber zákazku zo zoznamu dostupných.", Color.ORANGE.darker()); return; }
 
-        int kapacita = (Integer) kapacitaSpinner.getValue();
+        Vozidlo vozidlo = (Vozidlo) vozidloCombo.getSelectedItem();
+        if (vozidlo == null) {
+            setStatus("Najskôr vyber vozidlo.", Color.RED.darker());
+            return;
+        }
+
+        int kapacita = vozidlo.getKapacita();
         if (vybranteModel.getRowCount() >= kapacita) {
             setStatus("Kapacita vozidla je plná (" + kapacita + ").", Color.RED.darker());
             return;
@@ -342,9 +353,8 @@ public class RozvozPanel extends JPanel {
 
     /** Odošle rozvoz na schválenie (zavolá controller). */
     private void odoslatRozvoz() {
-        String vozidlo = vozidloField.getText().trim();
-        int kapacita   = (Integer) kapacitaSpinner.getValue();
-        String datum   = datumField.getText().trim();
+        Vozidlo vozidlo = (Vozidlo) vozidloCombo.getSelectedItem();
+        String datum = datumField.getText().trim();
 
         // Zozbierame ID zákaziek v poradí
         List<Integer> ids = new ArrayList<>();
@@ -352,7 +362,7 @@ public class RozvozPanel extends JPanel {
             ids.add((Integer) vybranteModel.getValueAt(i, 1));
         }
 
-        VysledokRozvozu v = controller.vytvorRozvoz(vozidlo, kapacita, datum, ids);
+        VysledokRozvozu v = controller.vytvorRozvoz(vozidlo, datum, ids);
 
         if (v.typ == VysledokRozvozu.Typ.CHYBA) {
             JOptionPane.showMessageDialog(this, v.sprava, "Chyba", JOptionPane.ERROR_MESSAGE);
@@ -364,61 +374,16 @@ public class RozvozPanel extends JPanel {
         setStatus("✔ " + v.sprava, new Color(0, 120, 0));
 
         // Resetujeme formulár
-        vozidloField.setText("");
+        vozidloCombo.setSelectedIndex(0);
+        aktualizujKapacituLabel();
         datumField.setText("");
         vybranteModel.setRowCount(0);
         refreshDostupne();
 
         // Prepneme na kartu Čakajúce
-        tabs.setSelectedIndex(1);
-        refreshCakajuce();
-    }
-
-    /** Schváli vybraný rozvoz v tabuľke čakajúcich. */
-    private void schvalit() {
-        int row = cakajuceTable.getSelectedRow();
-        if (row < 0) { setStatus("Vyber rozvoz zo zoznamu.", Color.ORANGE.darker()); return; }
-
-        int id = (Integer) cakajuceModel.getValueAt(row, 0);
-
-        int confirm = JOptionPane.showConfirmDialog(this,
-                "Naozaj schváliť rozvoz #" + id + "?", "Potvrdenie",
-                JOptionPane.YES_NO_OPTION);
-        if (confirm != JOptionPane.YES_OPTION) return;
-
-        VysledokRozvozu v = controller.schvalitRozvoz(id);
-        if (v.typ == VysledokRozvozu.Typ.CHYBA) {
-            JOptionPane.showMessageDialog(this, v.sprava, "Chyba", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        setStatus("✔ " + v.sprava, new Color(0, 120, 0));
-        refreshCakajuce();
-        refreshSchvalene();
-    }
-
-    /** Zamietne vybraný rozvoz v tabuľke čakajúcich. */
-    private void zamietnyt() {
-        int row = cakajuceTable.getSelectedRow();
-        if (row < 0) { setStatus("Vyber rozvoz zo zoznamu.", Color.ORANGE.darker()); return; }
-
-        int id = (Integer) cakajuceModel.getValueAt(row, 0);
-
-        int confirm = JOptionPane.showConfirmDialog(this,
-                "Naozaj zamietnuť rozvoz #" + id + "? Zákazky budú vrátené.",
-                "Potvrdenie", JOptionPane.YES_NO_OPTION);
-        if (confirm != JOptionPane.YES_OPTION) return;
-
-        VysledokRozvozu v = controller.zamietnytRozvoz(id);
-        if (v.typ == VysledokRozvozu.Typ.CHYBA) {
-            JOptionPane.showMessageDialog(this, v.sprava, "Chyba", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        setStatus("✔ " + v.sprava, new Color(180, 100, 0));
-        refreshCakajuce();
         refreshDostupne();
     }
+
 
     // ═════════════════════════════════════════════════════════════════════════
     //  REFRESH
@@ -426,15 +391,13 @@ public class RozvozPanel extends JPanel {
 
     public void refreshAll() {
         refreshDostupne();
-        refreshCakajuce();
         refreshSchvalene();
     }
 
     private void refreshAktualnaKarta() {
         switch (tabs.getSelectedIndex()) {
             case 0 -> refreshDostupne();
-            case 1 -> refreshCakajuce();
-            case 2 -> refreshSchvalene();
+            case 1 -> refreshSchvalene();
         }
     }
 
@@ -453,26 +416,6 @@ public class RozvozPanel extends JPanel {
                         z.getId(), z.getNazov(), zakaznik, z.getStav().name()
                 });
             }
-        }
-    }
-
-    private void refreshCakajuce() {
-        cakajuceModel.setRowCount(0);
-        for (Rozvoz r : controller.getCakajuceRozvozy()) {
-            cakajuceModel.addRow(new Object[]{
-                    r.getId(), extractVozidlo(r), extractDatum(r),
-                    r.getZakazky().size(), r.getStav()
-            });
-        }
-    }
-
-    private void refreshSchvalene() {
-        schvaleneModel.setRowCount(0);
-        for (Rozvoz r : controller.getSchvaleneRozvozy()) {
-            schvaleneModel.addRow(new Object[]{
-                    r.getId(), extractVozidlo(r), extractDatum(r),
-                    r.getZakazky().size(), r.getStav()
-            });
         }
     }
 
@@ -549,16 +492,4 @@ public class RozvozPanel extends JPanel {
                 new EmptyBorder(6, 8, 8, 8));
     }
 
-    // Rozvoz nemá public getVozidlo/getDatum – vyťahujeme z toString
-    private String extractVozidlo(Rozvoz r) {
-        String s = r.toString();
-        try { return s.split("\\| Vozidlo: ")[1].split(" \\|")[0].trim(); }
-        catch (Exception e) { return ""; }
-    }
-
-    private String extractDatum(Rozvoz r) {
-        String s = r.toString();
-        try { return s.split("\\| Dátum: ")[1].split(" \\|")[0].trim(); }
-        catch (Exception e) { return ""; }
-    }
 }
