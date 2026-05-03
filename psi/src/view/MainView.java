@@ -197,9 +197,16 @@ public class MainView extends JFrame {
     private JPanel buildContent() {
         JPanel uvod = new JPanel(new GridBagLayout());
         uvod.setBackground(Color.WHITE);
-        JLabel uvLabel = new JLabel("Vitajte v systéme WoodFlow", SwingConstants.CENTER);
-        uvLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        uvod.add(uvLabel);
+
+// Logo
+        ImageIcon logoIcon = new ImageIcon("assets/woodflow_logo.png");
+        Image scaledImage = logoIcon.getImage().getScaledInstance(650, 360, Image.SCALE_SMOOTH);
+
+        JLabel logoLabel = new JLabel(new ImageIcon(scaledImage));
+        logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+        uvod.add(logoLabel);
+
         ZakazkaController zakazkaController = new ZakazkaController();
         PrijatZakazkuView prijatZakazkuView = new PrijatZakazkuView(zakazkaController);
 
