@@ -2,7 +2,7 @@ package view;
 
 import obchod.ZakazkaController;
 import sklad.InventarController;
-import model.Zakazka;
+import obchod.Zakazka;
 import sklad.Material;
 
 import javax.swing.*;

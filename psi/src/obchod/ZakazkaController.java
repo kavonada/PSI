@@ -1,6 +1,5 @@
 package obchod;
 
-import model.Zakazka;
 import ulozisko.DataStore;
 import sklad.Material;
 

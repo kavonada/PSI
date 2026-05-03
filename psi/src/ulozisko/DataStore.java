@@ -3,7 +3,7 @@ package ulozisko;
 import obchod.Adresa;
 import rozvoz.Vozidlo;
 import vyroba.PoziadavkaNaMaterial;
-import model.Zakazka;
+import obchod.Zakazka;
 import obchod.Zakaznik;
 import rozvoz.Rozvoz;
 import vyroba.Pracovnik;
