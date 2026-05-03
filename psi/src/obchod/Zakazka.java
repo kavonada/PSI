@@ -25,6 +25,7 @@ public class Zakazka {
     private List<VyrobnaUloha> vyrobneUlohy;
 
     private StavZakazky stav;
+
     private boolean pouzitaVRozvoze = false;
 
     public enum StavZakazky {
@@ -50,7 +51,6 @@ public class Zakazka {
         this.terminDorucenia = terminDorucenia;
         this.materialy = materialy;
         this.stav = StavZakazky.VYTVORENA;
-        // this.polozkyMaterialu = new ArrayList<>();
         this.vyrobneUlohy = new ArrayList<>();
     }
 
@@ -114,14 +114,6 @@ public class Zakazka {
     public void setMaterialy(List<Material> materialy) {
         this.materialy = materialy;
     }
-
-//    public List<PolozkaMaterialu> getPolozkyMaterialu() {
-//        return polozkyMaterialu;
-//    }
-//
-//    public void setPolozkyMaterialu(List<PolozkaMaterialu> polozkyMaterialu) {
-//        this.polozkyMaterialu = polozkyMaterialu;
-//    }
 
     public Adresa getDodaciaAdresa() {
         return dodaciaAdresa;

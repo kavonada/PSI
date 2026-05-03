@@ -1,6 +1,7 @@
 package view;
 
 import obchod.ZakazkaController;
+import obchod.ValidationException;
 import sklad.InventarController;
 import obchod.Zakazka;
 import sklad.Material;
@@ -24,9 +25,12 @@ public class PrijatZakazkuView extends JPanel {
     private JLabel materialStatusLabel;
 
     private JTextField cenaField;
+    private JLabel cenaErrorLabel;
+
     private JComboBox<Integer> denCombo;
     private JComboBox<Integer> mesiacCombo;
     private JComboBox<Integer> rokCombo;
+    private JLabel terminErrorLabel;
 
     private JTextField menoField;
     private JTextField emailField;
@@ -38,6 +42,9 @@ public class PrijatZakazkuView extends JPanel {
     private JTextField pscField;
 
     private JLabel statusLabel;
+
+    private static final Color ERROR_BG = new Color(255, 220, 220);
+    private static final Color NORMAL_BG = Color.WHITE;
 
     public PrijatZakazkuView(ZakazkaController controller) {
         this.controller = controller;
@@ -84,13 +91,11 @@ public class PrijatZakazkuView extends JPanel {
 
         int row = 0;
 
-        lc.gridx = 0;
-        lc.gridy = row;
+        lc.gridx = 0; lc.gridy = row;
         form.add(new JLabel("Názov produktu:"), lc);
 
         nazovField = new JTextField();
-        fc.gridx = 0;
-        fc.gridy = ++row;
+        fc.gridx = 0; fc.gridy = ++row;
         form.add(nazovField, fc);
 
         lc.gridy = ++row;
@@ -100,8 +105,15 @@ public class PrijatZakazkuView extends JPanel {
         materialyPanel.setLayout(new BoxLayout(materialyPanel, BoxLayout.Y_AXIS));
         materialyPanel.setBackground(Color.WHITE);
 
+        JScrollPane materialyScroll = new JScrollPane(materialyPanel);
+        materialyScroll.setPreferredSize(new Dimension(0, 120));
+        materialyScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
+        materialyScroll.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        materialyScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
         fc.gridy = ++row;
-        form.add(materialyPanel, fc);
+        fc.weighty = 0;
+        form.add(materialyScroll, fc);
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
         buttons.setBackground(Color.WHITE);
@@ -115,7 +127,7 @@ public class PrijatZakazkuView extends JPanel {
         fc.gridy = ++row;
         form.add(buttons, fc);
 
-        materialStatusLabel = new JLabel(" ");
+        materialStatusLabel = new JLabel("<html>&nbsp;</html>");
         materialStatusLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
         materialStatusLabel.setForeground(Color.RED.darker());
 
@@ -155,21 +167,31 @@ public class PrijatZakazkuView extends JPanel {
 
         GridBagConstraints lc = labelConstraints();
         GridBagConstraints fc = fieldConstraints();
+        fc.gridx = 1;
+
+        // nech obsah nie je v strede
+        GridBagConstraints filler = new GridBagConstraints();
+        filler.gridx = 0; filler.gridy = 99;
+        filler.gridwidth = 2;
+        filler.weighty = 1.0;
+        filler.fill = GridBagConstraints.VERTICAL;
 
         int row = 0;
 
-        lc.gridx = 0;
-        lc.gridy = row;
+        lc.gridx = 0; lc.gridy = row;
         panel.add(new JLabel("Cena:"), lc);
 
         cenaField = new JTextField();
-        fc.gridx = 1;
         fc.gridy = row++;
         panel.add(cenaField, fc);
 
-        lc.gridx = 0;
-        lc.gridy = row;
-        panel.add(new JLabel("Najneskorší termín doručenia:"), lc);
+        cenaErrorLabel = buildErrorLabel();
+        GridBagConstraints cenaEc = errorLabelConstraints();
+        cenaEc.gridy = row++;
+        panel.add(cenaErrorLabel, cenaEc);
+
+        lc.gridx = 0; lc.gridy = row;
+        panel.add(new JLabel("Termín doručenia:"), lc);
 
         JPanel datePanel = new JPanel(new GridLayout(1, 3, 6, 0));
         datePanel.setBackground(Color.WHITE);
@@ -178,26 +200,25 @@ public class PrijatZakazkuView extends JPanel {
         mesiacCombo = new JComboBox<>();
         rokCombo = new JComboBox<>();
 
-        for (int i = 1; i <= 31; i++) {
-            denCombo.addItem(i);
-        }
-
-        for (int i = 1; i <= 12; i++) {
-            mesiacCombo.addItem(i);
-        }
+        for (int i = 1; i <= 31; i++) denCombo.addItem(i);
+        for (int i = 1; i <= 12; i++) mesiacCombo.addItem(i);
 
         int aktualnyRok = LocalDate.now().getYear();
-        for (int i = aktualnyRok; i <= aktualnyRok + 5; i++) {
-            rokCombo.addItem(i);
-        }
+        for (int i = aktualnyRok; i <= aktualnyRok + 5; i++) rokCombo.addItem(i);
 
         datePanel.add(denCombo);
         datePanel.add(mesiacCombo);
         datePanel.add(rokCombo);
 
-        fc.gridx = 1;
-        fc.gridy = row;
+        fc.gridy = row++;
         panel.add(datePanel, fc);
+
+        terminErrorLabel = buildErrorLabel();
+        GridBagConstraints terminEc = errorLabelConstraints();
+        terminEc.gridy = row++;
+        panel.add(terminErrorLabel, terminEc);
+
+        panel.add(new JLabel(), filler);
 
         return panel;
     }
@@ -212,53 +233,44 @@ public class PrijatZakazkuView extends JPanel {
 
         int row = 0;
 
-        lc.gridx = 0;
-        lc.gridy = row;
+        lc.gridx = 0; lc.gridy = row;
         panel.add(new JLabel("Meno zákazníka:"), lc);
-
         menoField = new JTextField();
-        fc.gridx = 1;
-        fc.gridy = row++;
+        fc.gridx = 1; fc.gridy = row++;
         panel.add(menoField, fc);
 
         lc.gridy = row;
         panel.add(new JLabel("E-mail:"), lc);
-
         emailField = new JTextField();
         fc.gridy = row++;
         panel.add(emailField, fc);
 
         lc.gridy = row;
         panel.add(new JLabel("Telefón:"), lc);
-
         telefonField = new JTextField();
         fc.gridy = row++;
         panel.add(telefonField, fc);
 
         lc.gridy = row;
         panel.add(new JLabel("Ulica:"), lc);
-
         ulicaField = new JTextField();
         fc.gridy = row++;
         panel.add(ulicaField, fc);
 
         lc.gridy = row;
         panel.add(new JLabel("Číslo domu:"), lc);
-
         cisloDomuField = new JTextField();
         fc.gridy = row++;
         panel.add(cisloDomuField, fc);
 
         lc.gridy = row;
         panel.add(new JLabel("Mesto:"), lc);
-
         mestoField = new JTextField();
         fc.gridy = row++;
         panel.add(mestoField, fc);
 
         lc.gridy = row;
         panel.add(new JLabel("PSČ:"), lc);
-
         pscField = new JTextField();
         fc.gridy = row;
         panel.add(pscField, fc);
@@ -287,6 +299,125 @@ public class PrijatZakazkuView extends JPanel {
         panel.add(buttons, BorderLayout.EAST);
 
         return panel;
+    }
+
+    // Validacia
+
+    private boolean validateForm() {
+        // Reset zvyrazneni
+        for (JTextField f : List.of(nazovField, menoField, emailField, telefonField,
+                ulicaField, cisloDomuField, mestoField, pscField, cenaField)) {
+            clearError(f);
+        }
+        cenaErrorLabel.setText("<html>&nbsp;</html>");
+        terminErrorLabel.setText("<html>&nbsp;</html>");
+        materialStatusLabel.setText("<html>&nbsp;</html>");
+
+        for (JComboBox<String> combo : materialComboBoxy) {
+            combo.setBorder(null);
+        }
+
+        boolean prazdnePolia = false;
+        boolean ineChyby = false;
+
+        if (nazovField.getText().isBlank()) { markError(nazovField); prazdnePolia = true; }
+        if (menoField.getText().isBlank()) { markError(menoField); prazdnePolia = true; }
+        if (emailField.getText().isBlank()) { markError(emailField); prazdnePolia = true; }
+        if (telefonField.getText().isBlank()) { markError(telefonField); prazdnePolia = true; }
+        if (ulicaField.getText().isBlank()) { markError(ulicaField); prazdnePolia = true; }
+        if (cisloDomuField.getText().isBlank()) { markError(cisloDomuField); prazdnePolia = true; }
+        if (mestoField.getText().isBlank()) { markError(mestoField); prazdnePolia = true; }
+        if (pscField.getText().isBlank()) { markError(pscField); prazdnePolia = true; }
+
+        // Cena
+        String cenaText = cenaField.getText().replace(",", ".");
+        if (cenaText.isBlank()) {
+            markError(cenaField);
+            cenaErrorLabel.setText("<html>Cena je povinná.</html>");
+            prazdnePolia = true;
+        } else {
+            try {
+                double cena = Double.parseDouble(cenaText);
+                if (cena < 0) {
+                    markError(cenaField);
+                    cenaErrorLabel.setText("<html>Cena nesmie byť záporná.</html>");
+                    ineChyby = true;
+                }
+            } catch (NumberFormatException e) {
+                markError(cenaField);
+                cenaErrorLabel.setText("<html>Cena musí byť číslo.</html>");
+                ineChyby = true;
+            }
+        }
+
+        // Termin
+        try {
+            int den = (Integer) denCombo.getSelectedItem();
+            int mesiac = (Integer) mesiacCombo.getSelectedItem();
+            int rok = (Integer) rokCombo.getSelectedItem();
+            LocalDate termin = LocalDate.of(rok, mesiac, den);
+            if (termin.isBefore(LocalDate.now())) {
+                terminErrorLabel.setText("<html>Termín doručenia nemôže byť v minulosti.</html>");
+                ineChyby = true;
+            }
+        } catch (Exception e) {
+            terminErrorLabel.setText("<html>Zadaný termín doručenia nie je platný.</html>");
+            ineChyby = true;
+        }
+
+        // Materialy
+        if (getVybraneMaterialy().isEmpty()) {
+            materialStatusLabel.setForeground(Color.RED.darker());
+            materialStatusLabel.setText("<html>Musí byť zadaný aspoň jeden materiál.</html>");
+            prazdnePolia = true;
+        }
+
+        if (prazdnePolia && ineChyby) {
+            setStatus("Vyplňte všetky povinné polia a opravte chyby vo formulári.", Color.RED.darker());
+        } else if (prazdnePolia) {
+            setStatus("Vyplňte všetky povinné polia.", Color.RED.darker());
+        } else if (ineChyby) {
+            setStatus("Opravte chyby vo formulári.", Color.RED.darker());
+        }
+
+        return !prazdnePolia && !ineChyby;
+    }
+
+    private void ulozZakazku() {
+        if (!validateForm()) {
+            return;
+        }
+
+        try {
+            Zakazka zakazka = controller.vytvorZakazku(
+                    nazovField.getText(),
+                    popisArea.getText(),
+                    menoField.getText(),
+                    emailField.getText(),
+                    telefonField.getText(),
+                    ulicaField.getText(),
+                    cisloDomuField.getText(),
+                    mestoField.getText(),
+                    pscField.getText(),
+                    Double.parseDouble(cenaField.getText().replace(",", ".")),
+                    nacitajTermin(),
+                    getVybraneMaterialy()
+            );
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Zákazka bola úspešne vytvorená. ID: " + zakazka.getId(),
+                    "Hotovo",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+            setStatus("Zákazka bola vytvorená.", new Color(0, 120, 0));
+            zrusFormular();
+
+        } catch (ValidationException ex) {
+            // Controller zachytil ďalšie chyby (napr. logické) — zobraz ich
+            setStatus("Chyba: " + ex.getMessage(), Color.RED.darker());
+        }
     }
 
     private void pridajMaterialovyRiadok() {
@@ -322,97 +453,47 @@ public class PrijatZakazkuView extends JPanel {
     }
 
     private void skontrolujMaterialy() {
-        List<Material> materialy = getVybraneMaterialy();
+        List<Material> vsetkyMaterialy = InventarController.getMaterials();
 
-        List<Material> nedostatkove = controller.overMaterialy(materialy);
+        // Reset zvyrazneni
+        for (JComboBox<String> combo : materialComboBoxy) {
+            combo.setBorder(null);
+        }
+
+        List<Material> vybrané = getVybraneMaterialy();
+        List<Material> nedostatkove = controller.overMaterialy(vybrané);
 
         if (nedostatkove.isEmpty()) {
             materialStatusLabel.setForeground(new Color(0, 120, 0));
-            materialStatusLabel.setText("Všetky vybrané materiály sú dostupné.");
+            materialStatusLabel.setText("<html>Všetky vybrané materiály sú dostupné.</html>");
             setStatus("Materiály boli skontrolované.", new Color(0, 120, 0));
             return;
         }
 
-        StringBuilder sprava = new StringBuilder("Nedostupné materiály: ");
-        for (Material material : nedostatkove) {
-            sprava.append(material.getNazov()).append(" ");
-        }
-
-        materialStatusLabel.setForeground(Color.RED.darker());
-        materialStatusLabel.setText(sprava.toString());
-        setStatus("Niektoré materiály nie sú dostupné.", Color.RED.darker());
-    }
-
-    private void ulozZakazku() {
-        try {
-            Zakazka zakazka = controller.vytvorZakazku(
-                    nazovField.getText(),
-                    popisArea.getText(),
-                    menoField.getText(),
-                    emailField.getText(),
-                    telefonField.getText(),
-                    ulicaField.getText(),
-                    cisloDomuField.getText(),
-                    mestoField.getText(),
-                    pscField.getText(),
-                    nacitajCenu(),
-                    nacitajTermin(),
-                    getVybraneMaterialy()
-            );
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Zákazka bola úspešne vytvorená. ID: " + zakazka.getId(),
-                    "Hotovo",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
-
-            setStatus("Zákazka bola vytvorená.", new Color(0, 120, 0));
-            zrusFormular();
-
-        } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    ex.getMessage(),
-                    "Chyba",
-                    JOptionPane.ERROR_MESSAGE
-            );
-            setStatus("Chyba: " + ex.getMessage(), Color.RED.darker());
-        }
-    }
-
-    private double nacitajCenu() {
-        try {
-            return Double.parseDouble(cenaField.getText().replace(",", "."));
-        } catch (NumberFormatException ex) {
-            throw new IllegalArgumentException("Cena musí byť číslo.");
-        }
-    }
-
-    private LocalDate nacitajTermin() {
-        int den = (Integer) denCombo.getSelectedItem();
-        int mesiac = (Integer) mesiacCombo.getSelectedItem();
-        int rok = (Integer) rokCombo.getSelectedItem();
-
-        try {
-            return LocalDate.of(rok, mesiac, den);
-        } catch (Exception ex) {
-            throw new IllegalArgumentException("Zadaný termín doručenia nie je platný.");
-        }
-    }
-
-    private List<Material> getVybraneMaterialy() {
-        List<Material> materialy = new ArrayList<>();
-
+        // Zvyrazni nedostatok
         for (JComboBox<String> combo : materialComboBoxy) {
             int index = combo.getSelectedIndex();
-
-            if (index >= 0 && index < InventarController.getMaterials().size()) {
-                materialy.add(InventarController.getMaterials().get(index));
+            if (index >= 0 && index < vsetkyMaterialy.size()) {
+                Material m = vsetkyMaterialy.get(index);
+                if (m.getMnozstvo() <= 0) {
+                    combo.setBorder(BorderFactory.createLineBorder(Color.RED.darker(), 2));
+                }
             }
         }
 
-        return materialy;
+        int pocet = nedostatkove.size();
+        String sprava;
+        if (pocet == 1) {
+            sprava = "1 materiál nie je dostupný.";
+        } else if (pocet < 5) {
+            sprava = pocet + " materiály nie sú dostupné.";
+        } else {
+            sprava = pocet + " materiálov nie je dostupných.";
+        }
+
+        materialStatusLabel.setForeground(Color.RED.darker());
+        materialStatusLabel.setText("<html>" + sprava + "</html>");
+        setStatus("Niektoré materiály nie sú dostupné.", Color.RED.darker());
     }
 
     private void zrusFormular() {
@@ -427,6 +508,18 @@ public class PrijatZakazkuView extends JPanel {
         mestoField.setText("");
         pscField.setText("");
 
+        // Reset zvyrazneni
+        for (JTextField f : List.of(nazovField, menoField, emailField, telefonField,
+                ulicaField, cisloDomuField, mestoField, pscField, cenaField)) {
+            clearError(f);
+        }
+        cenaErrorLabel.setText("<html>&nbsp;</html>");
+        terminErrorLabel.setText("<html>&nbsp;</html>");
+
+        for (JComboBox<String> combo : materialComboBoxy) {
+            combo.setBorder(null);
+        }
+
         materialyPanel.removeAll();
         materialComboBoxy.clear();
         pridajMaterialovyRiadok();
@@ -435,8 +528,56 @@ public class PrijatZakazkuView extends JPanel {
         mesiacCombo.setSelectedIndex(0);
         rokCombo.setSelectedIndex(0);
 
-        materialStatusLabel.setText(" ");
+        materialStatusLabel.setText("<html>&nbsp;</html>");
         setStatus("Formulár bol vymazaný.", new Color(80, 80, 80));
+    }
+
+
+    private LocalDate nacitajTermin() {
+        int den = (Integer) denCombo.getSelectedItem();
+        int mesiac = (Integer) mesiacCombo.getSelectedItem();
+        int rok = (Integer) rokCombo.getSelectedItem();
+        return LocalDate.of(rok, mesiac, den);
+    }
+
+    private List<Material> getVybraneMaterialy() {
+        List<Material> materialy = new ArrayList<>();
+        for (JComboBox<String> combo : materialComboBoxy) {
+            int index = combo.getSelectedIndex();
+            if (index >= 0 && index < InventarController.getMaterials().size()) {
+                materialy.add(InventarController.getMaterials().get(index));
+            }
+        }
+        return materialy;
+    }
+
+    private void markError(JTextField field) {
+        field.setBackground(ERROR_BG);
+    }
+
+    private void clearError(JTextField field) {
+        field.setBackground(NORMAL_BG);
+    }
+
+    private JLabel buildErrorLabel() {
+        JLabel label = new JLabel("<html>&nbsp;</html>");
+        label.setForeground(Color.RED.darker());
+        label.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        return label;
+    }
+
+    private GridBagConstraints errorLabelConstraints() {
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 1;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(0, 6, 4, 6);
+        c.weightx = 1.0;
+        return c;
+    }
+
+    private void setStatus(String text, Color color) {
+        statusLabel.setText(text);
+        statusLabel.setForeground(color);
     }
 
     private GridBagConstraints labelConstraints() {
@@ -455,11 +596,6 @@ public class PrijatZakazkuView extends JPanel {
         return c;
     }
 
-    private void setStatus(String text, Color color) {
-        statusLabel.setText(text);
-        statusLabel.setForeground(color);
-    }
-
     private javax.swing.border.Border buildTitledBorder(String title) {
         return BorderFactory.createCompoundBorder(
                 BorderFactory.createTitledBorder(
@@ -476,7 +612,6 @@ public class PrijatZakazkuView extends JPanel {
 
     private JButton createButton(String text, Runnable action) {
         JButton button = new JButton(text);
-
         button.setFont(new Font("SansSerif", Font.BOLD, 13));
         button.setBackground(new Color(40, 100, 180));
         button.setForeground(Color.WHITE);
@@ -484,9 +619,7 @@ public class PrijatZakazkuView extends JPanel {
         button.setOpaque(true);
         button.setBorderPainted(false);
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
         button.addActionListener(e -> action.run());
-
         return button;
     }
 

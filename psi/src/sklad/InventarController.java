@@ -17,7 +17,7 @@ public class InventarController {
     static {
         materials.add(new Material("Masív dub", 50, 15.00, 20));
         materials.add(new Material("DTD doska", 15, 10.00, 20));
-        materials.add(new Material("MDF doska", 5, 12.00, 20));
+        materials.add(new Material("MDF doska", 0, 12.00, 20));
         // Masiv
         materials.add(new Material("Masív buk", 40, 12.00, 15));
         materials.add(new Material("Masív orech kráľovský", 50, 45.00, 5));
@@ -26,7 +26,7 @@ public class InventarController {
         // Dosky
         materials.add(new Material("Preglejka breza", 18, 22.00, 10));
         materials.add(new Material("LDTD Biela perlička", 18, 9.50, 40));
-        materials.add(new Material("HDF doska surová", 3, 4.00, 100));
+        materials.add(new Material("HDF doska surová", 0, 4.00, 100));
         materials.add(new Material("Dyhovaná doska dub", 19, 35.00, 12));
         // Spotrebny material
         materials.add(new Material("Tvrdý voskový olej (1 liter)", 10, 28.00, 5));

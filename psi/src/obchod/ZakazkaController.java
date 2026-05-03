@@ -8,6 +8,58 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ZakazkaController {
+    private void overPlatnostUdajov(String nazov, String menoZakaznika, String email,
+                                    String ulica, String cisloDomu, String mesto, String psc,
+                                    double cena, LocalDate terminDorucenia, List<Material> materialy) {
+
+        List<String> chyby = new ArrayList<>();
+
+        if (nazov == null || nazov.isBlank()) {
+            chyby.add("Názov zákazky je povinný.");
+        }
+
+        if (menoZakaznika == null || menoZakaznika.isBlank()) {
+            chyby.add("Meno zákazníka je povinné.");
+        }
+
+        if (email == null || email.isBlank()) {
+            chyby.add("E-mail je povinný.");
+        }
+
+        if (ulica == null || ulica.isBlank()) {
+            chyby.add("Ulica je povinná.");
+        }
+
+        if (cisloDomu == null || cisloDomu.isBlank()) {
+            chyby.add("Číslo domu je povinné.");
+        }
+
+        if (mesto == null || mesto.isBlank()) {
+            chyby.add("Mesto je povinné.");
+        }
+
+        if (psc == null || psc.isBlank()) {
+            chyby.add("PSČ je povinné.");
+        }
+
+        if (cena < 0) {
+            chyby.add("Cena nesmie byť záporná.");
+        }
+
+        if (terminDorucenia == null) {
+            chyby.add("Termín doručenia je povinný.");
+        } else if (terminDorucenia.isBefore(LocalDate.now())) {
+            chyby.add("Termín doručenia nemôže byť v minulosti.");
+        }
+
+        if (materialy == null || materialy.isEmpty()) {
+            chyby.add("Musí byť zadaný aspoň jeden materiál.");
+        }
+
+        if (!chyby.isEmpty()) {
+            throw new ValidationException(chyby);
+        }
+    }
 
     public Zakazka vytvorZakazku(String nazov, String popis,
                                  String menoZakaznika, String email, String telefon,
@@ -15,29 +67,11 @@ public class ZakazkaController {
                                  double cena, LocalDate terminDorucenia,
                                  List<Material> materialy) {
 
-        if (nazov == null || nazov.isBlank()) {
-            throw new IllegalArgumentException("Názov zákazky je povinný.");
-        }
-
-        if (menoZakaznika == null || menoZakaznika.isBlank()) {
-            throw new IllegalArgumentException("Meno zákazníka je povinné.");
-        }
-
-        if (cena < 0) {
-            throw new IllegalArgumentException("Cena nesmie byť záporná.");
-        }
-
-        if (terminDorucenia == null) {
-            throw new IllegalArgumentException("Termín doručenia je povinný.");
-        }
-
-        if (terminDorucenia.isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Termín doručenia nemôže byť v minulosti.");
-        }
-
-        if (materialy == null || materialy.isEmpty()) {
-            throw new IllegalArgumentException("Musí byť zadaný aspoň jeden materiál.");
-        }
+        overPlatnostUdajov(
+                nazov, menoZakaznika, email,
+                ulica, cisloDomu, mesto, psc,
+                cena, terminDorucenia, materialy
+        );
 
         Zakaznik zakaznik = new Zakaznik(menoZakaznika, email, telefon);
         Adresa adresa = new Adresa(ulica, cisloDomu, mesto, psc);
@@ -57,7 +91,7 @@ public class ZakazkaController {
         }
 
         for (Material material : materialy) {
-            if (material.getMnozstvo() <= 0) {
+            if (!material.overDostupnost(1)) {
                 nedostatkove.add(material);
             }
         }
