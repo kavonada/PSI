@@ -1,4 +1,4 @@
-package model.use_case_3;
+package sklad;
 
 public class KosikPolozka {
     private final Material material;

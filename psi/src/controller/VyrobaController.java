@@ -6,7 +6,7 @@ import model.Zakazka;
 import model.use_case_2.Pracovnik;
 import model.use_case_2.Stroj;
 import model.use_case_2.VyrobnaUloha;
-import model.use_case_3.Material;
+import sklad.Material;
 
 public class VyrobaController {
 

@@ -1,6 +1,8 @@
 package controller;
 
 import org.junit.jupiter.api.Test;
+import sklad.InventarController;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class InventarControllerTest {

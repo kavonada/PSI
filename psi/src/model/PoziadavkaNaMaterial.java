@@ -1,6 +1,6 @@
 package model;
 
-import model.use_case_3.Material;
+import sklad.Material;
 
 public class PoziadavkaNaMaterial {
     private final Material material;

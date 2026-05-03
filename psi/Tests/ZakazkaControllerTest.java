@@ -1,6 +1,6 @@
 import controller.ZakazkaController;
 import model.Zakazka;
-import model.use_case_3.Material;
+import sklad.Material;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -4,7 +4,7 @@ import model.Adresa;
 import model.DataStore;
 import model.Zakazka;
 import model.Zakaznik;
-import model.use_case_3.Material;
+import sklad.Material;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

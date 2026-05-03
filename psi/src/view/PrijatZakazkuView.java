@@ -1,10 +1,9 @@
 package view;
 
 import controller.ZakazkaController;
-import controller.InventarController;
-import model.DataStore;
+import sklad.InventarController;
 import model.Zakazka;
-import model.use_case_3.Material;
+import sklad.Material;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

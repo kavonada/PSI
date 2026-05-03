@@ -1,6 +1,6 @@
 package model.use_case_2;
 
-import model.use_case_3.Material;
+import sklad.Material;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 

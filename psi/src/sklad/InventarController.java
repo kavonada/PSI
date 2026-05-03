@@ -1,6 +1,4 @@
-package controller;
-
-import model.use_case_3.*;
+package sklad;
 
 import java.util.ArrayList;
 import java.util.List;

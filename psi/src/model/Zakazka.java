@@ -1,7 +1,7 @@
 package model;
 
 import model.use_case_2.VyrobnaUloha;
-import model.use_case_3.Material;
+import sklad.Material;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

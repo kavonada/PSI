@@ -1,9 +1,8 @@
 import model.Adresa;
-import model.use_case_2.PolozkaMaterialu;
 import model.Zakazka;
 import model.Zakaznik;
 import model.use_case_2.VyrobnaUloha;
-import model.use_case_3.Material;
+import sklad.Material;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

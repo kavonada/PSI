@@ -1,10 +1,10 @@
 package view;
 
-import controller.InventarController;
-import controller.InventarController.VysledokObjednavky;
-import model.use_case_3.KosikPolozka;
-import model.use_case_3.Material;
-import model.use_case_3.Dodavatel;
+import sklad.InventarController;
+import sklad.InventarController.VysledokObjednavky;
+import sklad.KosikPolozka;
+import sklad.Material;
+import sklad.Dodavatel;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

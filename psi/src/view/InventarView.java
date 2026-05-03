@@ -1,9 +1,9 @@
 package view;
 
-import controller.InventarController;
-import model.use_case_3.Material;
-import model.use_case_3.Objednavka;
-import model.use_case_3.StavObjednavky;
+import sklad.InventarController;
+import sklad.Material;
+import sklad.Objednavka;
+import sklad.StavObjednavky;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
